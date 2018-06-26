@@ -1,2 +1,6 @@
 *.class
+*.logs
 *.log
+
+zeppelin/logs
+zeppelin/data
