@@ -729,10 +729,10 @@
       "progressUpdateIntervalMs": 500
     },
     {
-      "title": "Data labelled ",
-      "text": "def fitPipeline(data: DataFrame, k: Int): PipelineModel \u003d {\n  val (protoTypeEncoder, protoTypeVecCol) \u003d oneHotPipeline(\"protocol_type\")\n  val (serviceEncoder, serviceVecCol) \u003d oneHotPipeline(\"service\")\n  val (flagEncoder, flagVecCol) \u003d oneHotPipeline(\"flag\")\n\n// Original columns, without label / string columns, but with new vector encoded cols\n  val assembleCols \u003d Set(data.columns: _*) -- \n    Seq(\"label\", \"protocol_type\", \"service\", \"flag\") ++\n    Seq(protoTypeVecCol, serviceVecCol, flagVecCol)\n  \n  val assembler \u003d new VectorAssembler()\n    .setInputCols(assembleCols.toArray)\n    .setOutputCol(\"featureVector\")\n\n  val scaler \u003d new StandardScaler()\n    .setWithStd(true)\n    .setWithMean(false)\n    .setInputCol(\"featureVector\")\n    .setOutputCol(\"scaledFeatureVector\")\n\n  val kMeans \u003d new KMeans()\n    .setSeed(Random.nextLong())\n    .setK(k)\n    .setMaxIter(40)\n    .setTol(1.0e-5)\n    .setPredictionCol(\"cluster\")\n    .setFeaturesCol(\"scaledFeatureVector\")\n\n  val pipeline \u003d new Pipeline().setStages(Array(protoTypeEncoder, serviceEncoder, flagEncoder, assembler, scaler, kMeans))\n  pipeline.fit(data)\n}\n  \ndef intrusionDetector(trainingData: DataFrame, testData: DataFrame): Unit \u003d {\n  val model \u003d fitPipeline(trainingData, 210)\n  model.save(\"/data/spark-k-means-model\")\n\n  val kMeansModel \u003d model.stages.last.asInstanceOf[KMeansModel]\n  val centroids \u003d kMeansModel.clusterCenters\n\n  val clustered \u003d model.transform(testData)\n  val threshold \u003d clustered.select(\"cluster\", \"scaledFeatureVector\").as[(Int, Vector)]\n    .map { case (cluster, vec) \u003d\u003e Vectors.sqdist(centroids(cluster), vec) }\n    .orderBy($\"value\".desc)\n    .take(100)\n    .last\n\n  val originalCols \u003d trainingData.columns\n  val anomalies \u003d clustered.filter { row \u003d\u003e\n    val cluster \u003d row.getAs[Int](\"cluster\")\n    val vec \u003d row.getAs[Vector](\"scaledFeatureVector\")\n    Vectors.sqdist(centroids(cluster), vec) \u003e\u003d threshold\n  }.select(originalCols.head, originalCols.tail:_*)\n\n  println(anomalies.first())\n}\n\nval trainingData \u003d spark\n  .read\n  .option(\"inferSchema\", true)\n  .option(\"header\", false)\n  .csv(\"/data/kddcup.data_10_percent_corrected\")\n  .toDF(\"duration\", \"protocol_type\", \"service\", \"flag\",\n    \"src_bytes\", \"dst_bytes\", \"land\", \"wrong_fragment\", \"urgent\",\n    \"hot\", \"num_failed_logins\", \"logged_in\", \"num_compromised\",\n    \"root_shell\", \"su_attempted\", \"num_root\", \"num_file_creations\",\n    \"num_shells\", \"num_access_files\", \"num_outbound_cmds\",\n    \"is_host_login\", \"is_guest_login\", \"count\", \"srv_count\",\n    \"serror_rate\", \"srv_serror_rate\", \"rerror_rate\", \"srv_rerror_rate\",\n    \"same_srv_rate\", \"diff_srv_rate\", \"srv_diff_host_rate\",\n    \"dst_host_count\", \"dst_host_srv_count\",\n    \"dst_host_same_srv_rate\", \"dst_host_diff_srv_rate\",\n    \"dst_host_same_src_port_rate\", \"dst_host_srv_diff_host_rate\",\n    \"dst_host_serror_rate\", \"dst_host_srv_serror_rate\",\n    \"dst_host_rerror_rate\", \"dst_host_srv_rerror_rate\",\n    \"label\")\n\nval testData \u003d spark\n  .read\n  .option(\"inferSchema\", true)\n  .option(\"header\", false)\n  .csv(\"/data/kddcup.testdata.unlabeled_10_percent\")\n  .toDF(\"duration\", \"protocol_type\", \"service\", \"flag\",\n    \"src_bytes\", \"dst_bytes\", \"land\", \"wrong_fragment\", \"urgent\",\n    \"hot\", \"num_failed_logins\", \"logged_in\", \"num_compromised\",\n    \"root_shell\", \"su_attempted\", \"num_root\", \"num_file_creations\",\n    \"num_shells\", \"num_access_files\", \"num_outbound_cmds\",\n    \"is_host_login\", \"is_guest_login\", \"count\", \"srv_count\",\n    \"serror_rate\", \"srv_serror_rate\", \"rerror_rate\", \"srv_rerror_rate\",\n    \"same_srv_rate\", \"diff_srv_rate\", \"srv_diff_host_rate\",\n    \"dst_host_count\", \"dst_host_srv_count\",\n    \"dst_host_same_srv_rate\", \"dst_host_diff_srv_rate\",\n    \"dst_host_same_src_port_rate\", \"dst_host_srv_diff_host_rate\",\n    \"dst_host_serror_rate\", \"dst_host_srv_serror_rate\",\n    \"dst_host_rerror_rate\", \"dst_host_srv_rerror_rate\")\n  \nintrusionDetector(trainingData, testData)",
+      "title": "",
+      "text": "def fitPipeline(data: DataFrame, k: Int): PipelineModel \u003d {\n  val (protoTypeEncoder, protoTypeVecCol) \u003d oneHotPipeline(\"protocol_type\")\n  val (serviceEncoder, serviceVecCol) \u003d oneHotPipeline(\"service\")\n  val (flagEncoder, flagVecCol) \u003d oneHotPipeline(\"flag\")\n\n  // Original columns, without label / string columns, but with new vector encoded cols\n  val assembleCols \u003d Set(data.columns: _*) -- \n    Seq(\"label\", \"protocol_type\", \"service\", \"flag\") ++\n    Seq(protoTypeVecCol, serviceVecCol, flagVecCol)\n  \n  val assembler \u003d new VectorAssembler()\n    .setInputCols(assembleCols.toArray)\n    .setOutputCol(\"featureVector\")\n\n  val scaler \u003d new StandardScaler()\n    .setWithStd(true)\n    .setWithMean(false)\n    .setInputCol(\"featureVector\")\n    .setOutputCol(\"scaledFeatureVector\")\n\n  val kMeans \u003d new KMeans()\n    .setSeed(Random.nextLong())\n    .setK(k)\n    .setMaxIter(40)\n    .setTol(1.0e-5)\n    .setPredictionCol(\"cluster\")\n    .setFeaturesCol(\"scaledFeatureVector\")\n\n  val pipeline \u003d new Pipeline().setStages(Array(protoTypeEncoder, serviceEncoder, flagEncoder, assembler, scaler, kMeans))\n  pipeline.fit(data)\n}\n  \ndef intrusionDetector(trainingData: DataFrame, testData: DataFrame): Unit \u003d {\n  val model \u003d fitPipeline(trainingData, 210)\n  model.save(\"/data/spark-k-means-model\")\n\n  val kMeansModel \u003d model.stages.last.asInstanceOf[KMeansModel]\n  val centroids \u003d kMeansModel.clusterCenters\n\n  val clustered \u003d model.transform(testData)\n  val threshold \u003d clustered.select(\"cluster\", \"scaledFeatureVector\").as[(Int, Vector)]\n    .map { case (cluster, vec) \u003d\u003e Vectors.sqdist(centroids(cluster), vec) }\n    .orderBy($\"value\".desc)\n    .take(100)\n    .last\n\n  val originalCols \u003d trainingData.columns\n  val anomalies \u003d clustered.filter { row \u003d\u003e\n    val cluster \u003d row.getAs[Int](\"cluster\")\n    val vec \u003d row.getAs[Vector](\"scaledFeatureVector\")\n    Vectors.sqdist(centroids(cluster), vec) \u003e\u003d threshold\n  }.select(originalCols.head, originalCols.tail:_*)\n\n  println(anomalies.first())\n}\n\nval trainingData \u003d spark\n  .read\n  .option(\"inferSchema\", true)\n  .option(\"header\", false)\n  .csv(\"/data/kddcup.data_10_percent_corrected\")\n  .toDF(\"duration\", \"protocol_type\", \"service\", \"flag\",\n    \"src_bytes\", \"dst_bytes\", \"land\", \"wrong_fragment\", \"urgent\",\n    \"hot\", \"num_failed_logins\", \"logged_in\", \"num_compromised\",\n    \"root_shell\", \"su_attempted\", \"num_root\", \"num_file_creations\",\n    \"num_shells\", \"num_access_files\", \"num_outbound_cmds\",\n    \"is_host_login\", \"is_guest_login\", \"count\", \"srv_count\",\n    \"serror_rate\", \"srv_serror_rate\", \"rerror_rate\", \"srv_rerror_rate\",\n    \"same_srv_rate\", \"diff_srv_rate\", \"srv_diff_host_rate\",\n    \"dst_host_count\", \"dst_host_srv_count\",\n    \"dst_host_same_srv_rate\", \"dst_host_diff_srv_rate\",\n    \"dst_host_same_src_port_rate\", \"dst_host_srv_diff_host_rate\",\n    \"dst_host_serror_rate\", \"dst_host_srv_serror_rate\",\n    \"dst_host_rerror_rate\", \"dst_host_srv_rerror_rate\",\n    \"label\")\n\nval testData \u003d spark\n  .read\n  .option(\"inferSchema\", true)\n  .option(\"header\", false)\n  .csv(\"/data/kddcup.testdata.unlabeled_10_percent\")\n  .toDF(\"duration\", \"protocol_type\", \"service\", \"flag\",\n    \"src_bytes\", \"dst_bytes\", \"land\", \"wrong_fragment\", \"urgent\",\n    \"hot\", \"num_failed_logins\", \"logged_in\", \"num_compromised\",\n    \"root_shell\", \"su_attempted\", \"num_root\", \"num_file_creations\",\n    \"num_shells\", \"num_access_files\", \"num_outbound_cmds\",\n    \"is_host_login\", \"is_guest_login\", \"count\", \"srv_count\",\n    \"serror_rate\", \"srv_serror_rate\", \"rerror_rate\", \"srv_rerror_rate\",\n    \"same_srv_rate\", \"diff_srv_rate\", \"srv_diff_host_rate\",\n    \"dst_host_count\", \"dst_host_srv_count\",\n    \"dst_host_same_srv_rate\", \"dst_host_diff_srv_rate\",\n    \"dst_host_same_src_port_rate\", \"dst_host_srv_diff_host_rate\",\n    \"dst_host_serror_rate\", \"dst_host_srv_serror_rate\",\n    \"dst_host_rerror_rate\", \"dst_host_srv_rerror_rate\")\n  \nintrusionDetector(trainingData, testData)",
       "user": "anonymous",
-      "dateUpdated": "Jun 26, 2018 9:18:21 PM",
+      "dateUpdated": "Jun 27, 2018 7:55:07 AM",
       "config": {
         "colWidth": 12.0,
         "enabled": true,
@@ -742,9 +742,9 @@
           "editOnDblClick": true
         },
         "editorMode": "ace/mode/scala",
-        "editorHide": true,
+        "editorHide": false,
         "tableHide": false,
-        "title": true
+        "title": false
       },
       "settings": {
         "params": {},
@@ -786,25 +786,25 @@
   "name": "Anomaly Detection",
   "id": "2DG9YNM1P",
   "angularObjects": {
-    "2DJ6GQADC:shared_process": [],
-    "2DJZD8S3C:shared_process": [],
-    "2DKFJT58C:shared_process": [],
-    "2DHU3T9S5:shared_process": [],
-    "2DGYDA6NB:shared_process": [],
-    "2DGZBDJFY:shared_process": [],
-    "2DJKYPD2S:shared_process": [],
-    "2DJXDQY2Z:shared_process": [],
-    "2DGG98SYS:shared_process": [],
-    "2DKC1SWDV:shared_process": [],
-    "2DHNCZYKZ:shared_process": [],
-    "2DK438JRP:shared_process": [],
-    "2DJ1VKY42:shared_process": [],
-    "2DJTDC4R8:shared_process": [],
-    "2DKDS8S8Y:shared_process": [],
-    "2DKSDMCMG:shared_process": [],
-    "2DJKNBPHY:shared_process": [],
-    "2DJBUBW5W:shared_process": [],
-    "2DGGTAT6Q:shared_process": []
+    "2DK5CG4SN:shared_process": [],
+    "2DK7C1Y8J:shared_process": [],
+    "2DH7UB9GF:shared_process": [],
+    "2DJW6K3YT:shared_process": [],
+    "2DKUK9SRP:shared_process": [],
+    "2DKE7MFYE:shared_process": [],
+    "2DKG4U4Y6:shared_process": [],
+    "2DKH5EDZT:shared_process": [],
+    "2DHEUJBB5:shared_process": [],
+    "2DKTQHUVC:shared_process": [],
+    "2DKFKP84B:shared_process": [],
+    "2DHSQ17S3:shared_process": [],
+    "2DKVCFSXR:shared_process": [],
+    "2DGFUWPPC:shared_process": [],
+    "2DH29V49X:shared_process": [],
+    "2DKKVSA1V:shared_process": [],
+    "2DHBSYB5N:shared_process": [],
+    "2DK1WAH88:shared_process": [],
+    "2DJ25WAVX:shared_process": []
   },
   "config": {},
   "info": {}
