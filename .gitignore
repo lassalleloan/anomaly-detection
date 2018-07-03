@@ -2,5 +2,7 @@
 *.logs
 *.log
 
-zeppelin/logs
-zeppelin/data
+.idea
+target
+logs
+data
