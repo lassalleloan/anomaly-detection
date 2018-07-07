@@ -1,0 +1,79 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# Anomaly Detection\n#### author: Loan Lassalle",
+      "user": "anonymous",
+      "dateUpdated": "Jul 7, 2018 4:22:03 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1530980508239_588038283",
+      "id": "20180707-162148_1003169724",
+      "dateCreated": "Jul 7, 2018 4:21:48 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n### Loading data",
+      "user": "anonymous",
+      "dateUpdated": "Jul 7, 2018 4:22:41 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1530980523886_-507341836",
+      "id": "20180707-162203_1493127824",
+      "dateCreated": "Jul 7, 2018 4:22:03 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "Intelligent Web Application Firewall",
+  "id": "2DJXGZ7DF",
+  "angularObjects": {
+    "2DM27M45M:shared_process": [],
+    "2DJH3P7XC:shared_process": [],
+    "2DHDUN7WB:shared_process": [],
+    "2DHAUUWKR:shared_process": [],
+    "2DHJFQVB5:shared_process": [],
+    "2DHDP35M3:shared_process": [],
+    "2DKQDT9RU:shared_process": [],
+    "2DKA1YMFH:shared_process": [],
+    "2DJ995EAE:shared_process": [],
+    "2DMBB58XT:shared_process": [],
+    "2DHAG8E8Q:shared_process": [],
+    "2DM9SXH1F:shared_process": [],
+    "2DHZEB4BR:shared_process": [],
+    "2DKQ1NQ71:shared_process": [],
+    "2DJQ5BS5E:shared_process": [],
+    "2DGUW1UU5:shared_process": [],
+    "2DJR434H7:shared_process": [],
+    "2DM2BHWFQ:shared_process": [],
+    "2DKWCBGZF:shared_process": []
+  },
+  "config": {},
+  "info": {}
+}

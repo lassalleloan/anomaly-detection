@@ -3,7 +3,7 @@
     {
       "text": "%md\n# Anomaly Detection\n#### author: Loan Lassalle",
       "user": "anonymous",
-      "dateUpdated": "Jun 26, 2018 8:23:15 PM",
+      "dateUpdated": "Jul 7, 2018 4:21:57 PM",
       "config": {
         "colWidth": 12.0,
         "enabled": true,
@@ -13,8 +13,8 @@
           "editOnDblClick": true
         },
         "editorMode": "ace/mode/markdown",
-        "editorHide": true,
-        "tableHide": false
+        "editorHide": false,
+        "tableHide": true
       },
       "settings": {
         "params": {},
@@ -41,7 +41,7 @@
     {
       "text": "%md\n### Loading data",
       "user": "anonymous",
-      "dateUpdated": "Jun 26, 2018 8:23:15 PM",
+      "dateUpdated": "Jul 7, 2018 4:22:18 PM",
       "config": {
         "colWidth": 12.0,
         "enabled": true,
@@ -51,8 +51,8 @@
           "editOnDblClick": true
         },
         "editorMode": "ace/mode/markdown",
-        "editorHide": true,
-        "tableHide": false
+        "editorHide": false,
+        "tableHide": true
       },
       "settings": {
         "params": {},
@@ -786,25 +786,25 @@
   "name": "Anomaly Detection",
   "id": "2DG9YNM1P",
   "angularObjects": {
-    "2DK5CG4SN:shared_process": [],
-    "2DK7C1Y8J:shared_process": [],
-    "2DH7UB9GF:shared_process": [],
-    "2DJW6K3YT:shared_process": [],
-    "2DKUK9SRP:shared_process": [],
-    "2DKE7MFYE:shared_process": [],
-    "2DKG4U4Y6:shared_process": [],
-    "2DKH5EDZT:shared_process": [],
-    "2DHEUJBB5:shared_process": [],
-    "2DKTQHUVC:shared_process": [],
-    "2DKFKP84B:shared_process": [],
-    "2DHSQ17S3:shared_process": [],
-    "2DKVCFSXR:shared_process": [],
-    "2DGFUWPPC:shared_process": [],
-    "2DH29V49X:shared_process": [],
-    "2DKKVSA1V:shared_process": [],
-    "2DHBSYB5N:shared_process": [],
-    "2DK1WAH88:shared_process": [],
-    "2DJ25WAVX:shared_process": []
+    "2DM27M45M:shared_process": [],
+    "2DJH3P7XC:shared_process": [],
+    "2DHDUN7WB:shared_process": [],
+    "2DHAUUWKR:shared_process": [],
+    "2DHJFQVB5:shared_process": [],
+    "2DHDP35M3:shared_process": [],
+    "2DKQDT9RU:shared_process": [],
+    "2DKA1YMFH:shared_process": [],
+    "2DJ995EAE:shared_process": [],
+    "2DMBB58XT:shared_process": [],
+    "2DHAG8E8Q:shared_process": [],
+    "2DM9SXH1F:shared_process": [],
+    "2DHZEB4BR:shared_process": [],
+    "2DKQ1NQ71:shared_process": [],
+    "2DJQ5BS5E:shared_process": [],
+    "2DGUW1UU5:shared_process": [],
+    "2DJR434H7:shared_process": [],
+    "2DM2BHWFQ:shared_process": [],
+    "2DKWCBGZF:shared_process": []
   },
   "config": {},
   "info": {}
