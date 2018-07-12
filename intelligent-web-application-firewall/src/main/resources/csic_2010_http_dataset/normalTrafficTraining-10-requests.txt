@@ -1,7 +1,7 @@
 GET http://localhost:8080/tienda1/index.jsp HTTP/1.1
 User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
 Pragma: no-cache
-Cache-control: no-cache
+Cache-Control: no-cache
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Encoding: x-gzip, x-deflate, gzip, deflate
 Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
@@ -14,7 +14,7 @@ Connection: close
 GET http://localhost:8080/tienda1/publico/anadir.jsp?id=3&nombre=Vino+Rioja&precio=100&cantidad=55&B1=A%F1adir+al+carrito HTTP/1.1
 User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
 Pragma: no-cache
-Cache-control: no-cache
+Cache-Control: no-cache
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Encoding: x-gzip, x-deflate, gzip, deflate
 Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
@@ -27,7 +27,7 @@ Connection: close
 POST http://localhost:8080/tienda1/publico/anadir.jsp HTTP/1.1
 User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
 Pragma: no-cache
-Cache-control: no-cache
+Cache-Control: no-cache
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Encoding: x-gzip, x-deflate, gzip, deflate
 Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
@@ -43,7 +43,7 @@ id=3&nombre=Vino+Rioja&precio=100&cantidad=55&B1=A%F1adir+al+carrito
 GET http://localhost:8080/tienda1/publico/autenticar.jsp?modo=entrar&login=choong&pwd=d1se3ci%F3n&remember=off&B1=Entrar HTTP/1.1
 User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
 Pragma: no-cache
-Cache-control: no-cache
+Cache-Control: no-cache
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Encoding: x-gzip, x-deflate, gzip, deflate
 Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
@@ -56,7 +56,7 @@ Connection: close
 POST http://localhost:8080/tienda1/publico/autenticar.jsp HTTP/1.1
 User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
 Pragma: no-cache
-Cache-control: no-cache
+Cache-Control: no-cache
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Encoding: x-gzip, x-deflate, gzip, deflate
 Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
@@ -72,7 +72,7 @@ modo=entrar&login=choong&pwd=d1se3ci%F3n&remember=off&B1=Entrar
 GET http://localhost:8080/tienda1/publico/caracteristicas.jsp?id=2 HTTP/1.1
 User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
 Pragma: no-cache
-Cache-control: no-cache
+Cache-Control: no-cache
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Encoding: x-gzip, x-deflate, gzip, deflate
 Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
@@ -85,7 +85,7 @@ Connection: close
 POST http://localhost:8080/tienda1/publico/caracteristicas.jsp HTTP/1.1
 User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
 Pragma: no-cache
-Cache-control: no-cache
+Cache-Control: no-cache
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Encoding: x-gzip, x-deflate, gzip, deflate
 Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
@@ -101,7 +101,7 @@ id=2
 GET http://localhost:8080/tienda1/publico/carrito.jsp HTTP/1.1
 User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
 Pragma: no-cache
-Cache-control: no-cache
+Cache-Control: no-cache
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Encoding: x-gzip, x-deflate, gzip, deflate
 Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
@@ -114,7 +114,7 @@ Connection: close
 GET http://localhost:8080/tienda1/publico/entrar.jsp?errorMsg=Credenciales+incorrectas HTTP/1.1
 User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
 Pragma: no-cache
-Cache-control: no-cache
+Cache-Control: no-cache
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Encoding: x-gzip, x-deflate, gzip, deflate
 Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
@@ -127,7 +127,7 @@ Connection: close
 POST http://localhost:8080/tienda1/publico/entrar.jsp HTTP/1.1
 User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
 Pragma: no-cache
-Cache-control: no-cache
+Cache-Control: no-cache
 Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
 Accept-Encoding: x-gzip, x-deflate, gzip, deflate
 Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5

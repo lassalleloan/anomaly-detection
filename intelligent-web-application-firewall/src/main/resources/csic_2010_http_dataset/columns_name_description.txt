@@ -1,0 +1,53 @@
+method: discrete, indicates the method to be performed on the resource identified by the Request-URI
+
+length_path: discrete, length of path of an URI
+printable_characters_ratio_path: continuous, percentage of printable characters in path
+non_printable_characters_ratio_path: continuous, percentage of non printable characters in path
+letter_ratio_path: continuous, percentage of letter in path
+digit_ratio_path: continuous, percentage of digit in path
+symbol_ratio_path: continuous, percentage of symbol in path
+num_segment: discrete, number of path segments separated by a slash "/"
+is_file: discrete, indicates if the URI is a file
+file_extension: discrete, indicates the extension of the file
+
+num_parameters: discrete, number of parameters in query
+length_query: discrete, length of query
+printable_characters_ratio_query: continuous, percentage of printable characters in query
+non_printable_characters_ratio_query: continuous, percentage of non printable characters in query
+letter_ratio_query: continuous, percentage of letter in query
+digit_ratio_query: continuous, percentage of digit in query
+symbol_ratio_query: continuous, percentage of symbol in query
+
+num_headers: discrete, number of headers
+standard_headers_ratio: continuous, percentage of standard headers in HTTP request
+non_standard_headers_ratio: continuous, percentage of non standard headers in HTTP request
+
+length_header_0: discrete, length of header's value
+printable_characters_ratio_header_0: continuous, percentage of printable characters in header_0
+non_printable_characters_ratio_header_0: continuous, percentage of non printable characters in header_0
+letter_ratio_header_0: continuous, percentage of letter in header_0
+digit_ratio_header_0: continuous, percentage of digit in header_0
+symbol_ratio_header_0: continuous, percentage of symbol in header_0
+is_standard_header_0: discrete, percentage of symbol in header_0
+
+...
+
+length_header_33: discrete, length of header's value
+printable_characters_ratio_header_33: continuous, percentage of printable characters in header_33
+non_printable_characters_ratio_header_33: continuous, percentage of non printable characters in header_33
+letter_ratio_header_33: continuous, percentage of letter in header_33
+digit_ratio_header_33: continuous, percentage of digit in header_33
+symbol_ratio_header_33: continuous, percentage of symbol in header_33
+is_standard_header_33: discrete, percentage of symbol in header_33
+
+is_persistent_connection: discrete, indicates if is a persistent connection using value of "Connection" header
+content_type: discrete, indicates the MIME type of the HTTP request content
+
+length_body: discrete, length of body
+printable_characters_ratio_body: continuous, percentage of printable characters in body
+non_printable_characters_ratio_body: continuous, percentage of non printable characters in body
+letter_ratio_body: continuous, percentage of letter in body
+digit_ratio_body: continuous, percentage of digit in body
+symbol_ratio_body: continuous, percentage of symbol in body
+num_line: discrete, number of line in body
+num_word: discrete, number of word in body
