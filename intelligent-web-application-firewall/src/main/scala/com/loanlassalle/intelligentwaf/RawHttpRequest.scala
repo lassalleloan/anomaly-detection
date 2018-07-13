@@ -16,7 +16,11 @@ case class RawHttpRequest(requestLine: String,
   require(messageBody != null)
 
   private val requestLineSplit: Array[String] = requestLine.split(" ")
-  private val url: URL = try {new URL(requestLineSplit.tail.head)}catch {case _: Throwable => null}
+  private val url: URL = try {
+    new URL(requestLineSplit.tail.head)
+  } catch {
+    case _: Throwable => null
+  }
   private val query: String = if (url == null || url.getQuery == null) "" else url.getQuery
   private val pathValue: String = if (url == null || url.getPath == null) "" else url.getPath
 
@@ -60,11 +64,6 @@ case class RawHttpRequest(requestLine: String,
     else
       1 - getStandardHeaderRatio
 
-  override def toString: String =
-    s"$method $url $standard" + System.lineSeparator() +
-      s"${headers.mkString(System.lineSeparator())}" + System.lineSeparator() + System.lineSeparator() +
-      (if (body.length > 0) body else "") + System.lineSeparator()
-
   private def replaceExistingHeaders: List[Header] =
     Header.StandardHeaders.map { standard =>
       headers.find(header => header.key.equals(standard.key)) match {
@@ -72,6 +71,11 @@ case class RawHttpRequest(requestLine: String,
         case _ => standard
       }
     }
+
+  override def toString: String =
+    s"$method $url $standard" + System.lineSeparator() +
+      s"${headers.mkString(System.lineSeparator())}" + System.lineSeparator() + System.lineSeparator() +
+      (if (body.length > 0) body else "") + System.lineSeparator()
 
   private def parseQuery(query: String): List[Parameter] = {
     val parameterSeparator = '&'
@@ -128,26 +132,14 @@ object RawHttpRequest {
       .distinct
       .sortWith((a, b) => a < b)
 
+    val list = Map("path" -> uniquePaths, "parameter" -> uniqueParameters, "header" -> uniqueHeaders,
+      "standard" -> uniqueStandard, "MIME type" -> uniqueMimeType, "encoding" -> uniqueEncoding,
+      "charset" -> uniqueCharset, "language" -> uniqueLanguage, "content type" -> uniqueContentType)
+
     "Basic statistics\n" +
-      s"Number of HTTP request         : ${rawHttpRequests.size}\n" +
-      s"Number of unique path          : ${uniquePaths.size}\n" +
-      s"List of unique path            : ${uniquePaths.mkString(", ")}\n" +
-      s"Number of unique parameter     : ${uniqueParameters.size}\n" +
-      s"List of unique parameter       : ${uniqueParameters.mkString(", ")}\n" +
-      s"Number of unique header        : ${uniqueHeaders.size}\n" +
-      s"List of unique header          : ${uniqueHeaders.mkString(", ")}\n" +
-      s"Number of unique standard      : ${uniqueStandard.size}\n" +
-      s"List of unique standard        : ${uniqueStandard.mkString(", ")}\n" +
-      s"Number of unique MIME type     : ${uniqueMimeType.size}\n" +
-      s"List of unique MIME type       : ${uniqueMimeType.mkString(", ")}\n" +
-      s"Number of unique encoding      : ${uniqueEncoding.size}\n" +
-      s"List of unique encoding        : ${uniqueEncoding.mkString(", ")}\n" +
-      s"Number of unique charset       : ${uniqueCharset.size}\n" +
-      s"List of unique charset         : ${uniqueCharset.mkString(", ")}\n" +
-      s"Number of unique language      : ${uniqueLanguage.size}\n" +
-      s"List of unique language        : ${uniqueLanguage.mkString(", ")}\n" +
-      s"Number of unique content type  : ${uniqueContentType.size}\n" +
-      s"List of unique content type    : ${uniqueContentType.mkString(", ")}"
+      f"Number of HTTP request :${rawHttpRequests.size}\n" +
+      list.map(t => s"Number of unique ${t._1} : ${t._2.size}\n" +
+        s"List of unique ${t._1} : ${t._2.mkString(", ")}\n").mkString
   }
 
   def columnNames: String = s"method," +
