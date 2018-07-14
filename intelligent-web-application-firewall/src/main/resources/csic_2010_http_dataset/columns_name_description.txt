@@ -1,3 +1,5 @@
+id: discrete, indicates the line number of raw HTTP request
+
 method: discrete, indicates the method to be performed on the resource identified by the Request-URI
 
 length_path: discrete, length of path of an URI

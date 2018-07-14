@@ -13,7 +13,7 @@ object IntelligentWaf {
   def main(args: Array[String]): Unit = {
     Logger.getLogger("org").setLevel(Level.ERROR)
     Logger.getLogger("com").setLevel(Level.ERROR)
-    val resourceFolder = getClass.getResource("/csic_2010_http_dataset/").getPath
+    val ResourceFolder = getClass.getResource("/csic_2010_http_dataset/").getPath
 
     val spark = SparkSession.builder
       .master("local[*]")
@@ -23,8 +23,8 @@ object IntelligentWaf {
     val trainingDataFrame = spark.read
       .option("inferSchema", value = true)
       .option("header", value = false)
-      .csv(resourceFolder + "normal_traffic_training.csv")
-      .toDF("method", "length_path", "printable_characters_ratio_path",
+      .csv(ResourceFolder + "normal_traffic_training.csv")
+      .toDF("id", "method", "length_path", "printable_characters_ratio_path",
         "non_printable_characters_ratio_path", "letter_ratio_path", "digit_ratio_path",
         "symbol_ratio_path", "num_segment", "is_file", "file_extension", "num_parameters", "length_query",
         "printable_characters_ratio_query", "non_printable_characters_ratio_query", "letter_ratio_query",
@@ -121,8 +121,8 @@ object IntelligentWaf {
     val normalTestDataFrame = spark.read
       .option("inferSchema", value = true)
       .option("header", value = false)
-      .csv(resourceFolder + "normal_traffic_test.csv")
-      .toDF("method", "length_path", "printable_characters_ratio_path",
+      .csv(ResourceFolder + "normal_traffic_test.csv")
+      .toDF("id", "method", "length_path", "printable_characters_ratio_path",
         "non_printable_characters_ratio_path", "letter_ratio_path", "digit_ratio_path",
         "symbol_ratio_path", "num_segment", "is_file", "file_extension", "num_parameters", "length_query",
         "printable_characters_ratio_query", "non_printable_characters_ratio_query", "letter_ratio_query",
@@ -219,8 +219,8 @@ object IntelligentWaf {
     val anomalousTestDataFrame = spark.read
       .option("inferSchema", value = true)
       .option("header", value = false)
-      .csv(resourceFolder + "anomalous_traffic_test.csv")
-      .toDF("method", "length_path", "printable_characters_ratio_path",
+      .csv(ResourceFolder + "anomalous_traffic_test.csv")
+      .toDF("id", "method", "length_path", "printable_characters_ratio_path",
         "non_printable_characters_ratio_path", "letter_ratio_path", "digit_ratio_path",
         "symbol_ratio_path", "num_segment", "is_file", "file_extension", "num_parameters", "length_query",
         "printable_characters_ratio_query", "non_printable_characters_ratio_query", "letter_ratio_query",

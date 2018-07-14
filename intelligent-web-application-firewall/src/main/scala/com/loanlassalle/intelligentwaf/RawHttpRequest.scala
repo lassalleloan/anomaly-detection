@@ -8,7 +8,8 @@ import com.loanlassalle.intelligentwaf.util.Utils
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
-case class RawHttpRequest(requestLine: String,
+case class RawHttpRequest(id: BigInt,
+                          requestLine: String,
                           requestHeaders: List[Header],
                           messageBody: String) {
   require(requestLine != null && requestLine.count(_.equals(' ')).equals(2))
@@ -31,17 +32,18 @@ case class RawHttpRequest(requestLine: String,
   val headers: List[Header] = requestHeaders
   val body: Body = new Body(messageBody)
 
-  def csv: String = s"$method," +
-    s"${path.csv}," +
-    s"${parameters.size}," +
-    s"${query.length}," +
+  def toCsv: String = f"$id," +
+    f"$method," +
+    f"${path.toCsv}," +
+    f"${parameters.size}," +
+    f"${query.length}," +
     f"${Utils.printableCharRatio(Seq(query))}%.2f,${Utils.nonPrintableCharRatio(Seq(query))}%.2f," +
     f"${Utils.letterRatio(Seq(query))}%.2f,${Utils.digitRatio(Seq(query))}%.2f," +
     f"${Utils.symbolRatio(Seq(query))}%.2f," +
     f"${headers.size},$getStandardHeaderRatio%.2f,$getNonStandardHeaderRatio%.2f," +
-    s"${replaceExistingHeaders.map(_.csv).mkString(",")}," +
-    s"$isPersistentConnection,${getHeaderValue("Content-Type")}," +
-    s"${body.csv}"
+    f"${replaceExistingHeaders.map(_.toCsv).mkString(",")}," +
+    f"$isPersistentConnection,${getHeaderValue("Content-Type")}," +
+    f"${body.toCsv}"
 
   def isPersistentConnection: Int = headers.exists(header =>
     header.key.equals("Connection") && header.values.contains("keep-alive")).compareTo(false)
@@ -136,13 +138,14 @@ object RawHttpRequest {
       "standard" -> uniqueStandard, "MIME type" -> uniqueMimeType, "encoding" -> uniqueEncoding,
       "charset" -> uniqueCharset, "language" -> uniqueLanguage, "content type" -> uniqueContentType)
 
-    "Basic statistics\n" +
+    f"Basic statistics\n" +
       f"Number of HTTP request :${rawHttpRequests.size}\n" +
-      list.map(t => s"Number of unique ${t._1} : ${t._2.size}\n" +
-        s"List of unique ${t._1} : ${t._2.mkString(", ")}\n").mkString
+      list.map(t => f"Number of unique ${t._1} : ${t._2.size}\n" +
+        f"List of unique ${t._1} : ${t._2.mkString(", ")}\n").mkString
   }
 
-  def columnNames: String = s"method," +
+  def columnNames: String = s"id," +
+    s"method," +
     s"${Path.columnNames}," +
     s"num_parameters," +
     s"length_query," +
@@ -166,11 +169,19 @@ object RawHttpRequest {
     val httpRequests = ListBuffer[RawHttpRequest]()
 
     while (iterator.hasNext) {
-      httpRequests += parse(iterator)
+      httpRequests += parse(iterator, getLineNumber(httpRequests))
     }
 
     httpRequests
   }
+
+  def getLineNumber(rawHttpRequests: ListBuffer[RawHttpRequest]): BigInt =
+    if (rawHttpRequests.isEmpty)
+      1
+    else {
+      val last = rawHttpRequests.reverse.head
+      last.id + 1 + last.headers.size + (if (last.body.value.isEmpty) 2 else 3)
+    }
 
   /**
     * Parse a raw HTTP request
@@ -178,7 +189,7 @@ object RawHttpRequest {
     * @param iterator iterator on strings holding raw HTTP request
     * @throws NoSuchElementException if HTTP Request is malformed
     */
-  def parse(iterator: Iterator[String]): RawHttpRequest = {
+  def parse(iterator: Iterator[String], lineNumber: BigInt): RawHttpRequest = {
 
     // Request-Line              ; Section 5.1
     val requestLine = iterator.next()
@@ -195,13 +206,13 @@ object RawHttpRequest {
     // [ message-body ]          ; Section 4.3
     val messageBody = iterator.takeWhile(_.length > 0).mkString(System.lineSeparator())
 
-    RawHttpRequest(requestLine, requestHeaders, messageBody)
+    RawHttpRequest(lineNumber, requestLine, requestHeaders, messageBody)
   }
 
   private def parseHeader(header: String): (String, String) = {
     val valueSeparator = ':'
     val index = header.indexOf(valueSeparator)
-    if (index == -1)
+    if (index.equals(-1))
       header -> ""
     else
       header.substring(0, index) -> header.substring(index + 2, header.length())
@@ -212,7 +223,7 @@ object RawHttpRequest {
 
     val value: String
 
-    def csv: String = f"$length,$printableCharRatio%.2f," +
+    def toCsv: String = f"$length,$printableCharRatio%.2f," +
       f"$nonPrintableCharRatio%.2f,$letterRatio%.2f," +
       f"$digitRatio%.2f,$symbolRatio%.2f"
 
@@ -238,7 +249,7 @@ object RawHttpRequest {
     val key: String
     val values: List[String]
 
-    def csv: String = f"$length,$printableCharRatio%.2f," +
+    def toCsv: String = f"$length,$printableCharRatio%.2f," +
       f"$nonPrintableCharRatio%.2f,$letterRatio%.2f," +
       f"$digitRatio%.2f,$symbolRatio%.2f"
 
@@ -258,7 +269,7 @@ object RawHttpRequest {
   }
 
   case class Path(value: String) extends SingleValue {
-    override def csv: String = super.csv + s",$segmentCount,$isFile,$fileExtension"
+    override def toCsv: String = super.toCsv + s",$segmentCount,$isFile,$fileExtension"
 
     def segmentCount: Int = value.count(_.equals(Path.Separator))
 
@@ -272,14 +283,14 @@ object RawHttpRequest {
   case class Parameter(key: String, values: List[String] = List[String]()) extends KeyMultivalued
 
   case class Header(key: String, values: List[String] = List[String]()) extends KeyMultivalued {
-    override def csv: String = super.csv + s",$isStandard"
+    override def toCsv: String = super.toCsv + s",$isStandard"
 
     def isStandard: Int = Header.StandardHeaders.exists(standardHeader =>
       standardHeader.key.equals(key)).compareTo(false)
   }
 
   case class Body(value: String) extends SingleValue {
-    override def csv: String = super.csv + s",$lineNumber,$wordNumber"
+    override def toCsv: String = super.toCsv + s",$lineNumber,$wordNumber"
 
     def lineNumber: Int = value.split(Body.newLineRegex).length
 
@@ -300,7 +311,7 @@ object RawHttpRequest {
   object Parameter {
     def columnNames(index: Int): String = s"length_parameter_$index,printable_characters_ratio_parameter_$index," +
       s"non_printable_characters_ratio_parameter_$index,letter_ratio_parameter_$index," +
-      s"digit_ratio_parameter_$index,symbol_ratio_parameter"
+      s"digit_ratio_parameter_$index,symbol_ratio_parameter_$index"
   }
 
   object Header {
