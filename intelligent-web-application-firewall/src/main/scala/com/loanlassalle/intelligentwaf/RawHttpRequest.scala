@@ -8,10 +8,10 @@ import com.loanlassalle.intelligentwaf.util.Utils
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
-case class RawHttpRequest(id: BigInt,
-                          requestLine: String,
-                          requestHeaders: List[Header],
-                          messageBody: String) {
+class RawHttpRequest(val id: BigInt,
+                     requestLine: String,
+                     requestHeaders: List[Header],
+                     messageBody: String) {
   require(requestLine != null && requestLine.count(_.equals(' ')).equals(2))
   require(requestHeaders != null)
   require(messageBody != null)
@@ -37,12 +37,17 @@ case class RawHttpRequest(id: BigInt,
     f"${path.toCsv}," +
     f"${parameters.size}," +
     f"${query.length}," +
-    f"${Utils.printableCharRatio(Seq(query))}%.2f,${Utils.nonPrintableCharRatio(Seq(query))}%.2f," +
-    f"${Utils.letterRatio(Seq(query))}%.2f,${Utils.digitRatio(Seq(query))}%.2f," +
+    f"${Utils.printableCharRatio(Seq(query))}%.2f," +
+    f"${Utils.nonPrintableCharRatio(Seq(query))}%.2f," +
+    f"${Utils.letterRatio(Seq(query))}%.2f," +
+    f"${Utils.digitRatio(Seq(query))}%.2f," +
     f"${Utils.symbolRatio(Seq(query))}%.2f," +
-    f"${headers.size},$getStandardHeaderRatio%.2f,$getNonStandardHeaderRatio%.2f," +
+    f"${headers.size}," +
+    f"$getStandardHeaderRatio%.2f," +
+    f"$getNonStandardHeaderRatio%.2f," +
     f"${replaceExistingHeaders.map(_.toCsv).mkString(",")}," +
-    f"$isPersistentConnection,${getHeaderValue("Content-Type")}," +
+    f"$isPersistentConnection," +
+    f"${getHeaderValue("Content-Type")}," +
     f"${body.toCsv}"
 
   def isPersistentConnection: Int = headers.exists(header =>
@@ -54,17 +59,17 @@ case class RawHttpRequest(id: BigInt,
       case _ => "no_content"
     }
 
-  def getStandardHeaderRatio: Double =
-    if (headers.isEmpty)
-      headers.size
-    else
-      headers.count(element => element.isStandard.equals(1)) / headers.size.toDouble
-
   def getNonStandardHeaderRatio: Double =
     if (headers.isEmpty)
       headers.size
     else
       1 - getStandardHeaderRatio
+
+  def getStandardHeaderRatio: Double =
+    if (headers.isEmpty)
+      headers.size
+    else
+      headers.count(element => element.isStandard.equals(1)) / headers.size.toDouble
 
   private def replaceExistingHeaders: List[Header] =
     Header.StandardHeaders.map { standard =>
@@ -76,7 +81,7 @@ case class RawHttpRequest(id: BigInt,
 
   override def toString: String =
     s"$method $url $standard" + System.lineSeparator() +
-      s"${headers.mkString(System.lineSeparator())}" + System.lineSeparator() + System.lineSeparator() +
+      s"${headers.mkString(System.lineSeparator())}" + System.lineSeparator() * 2 +
       (if (body.length > 0) body else "") + System.lineSeparator()
 
   private def parseQuery(query: String): List[Parameter] = {
@@ -109,53 +114,61 @@ object RawHttpRequest {
   def basicStatistics(rawHttpRequests: Seq[RawHttpRequest]): String = {
     val uniquePaths = rawHttpRequests.map(_.path.value)
       .distinct
-      .sortWith((a, b) => a < b)
+      .sorted
     val uniqueParameters = rawHttpRequests.flatMap(_.parameters.map(_.key))
-      .distinct.sortWith((a, b) => a < b)
+      .distinct
+      .sorted
     val uniqueHeaders = rawHttpRequests.flatMap(_.headers.map(_.key))
       .distinct
-      .sortWith((a, b) => a < b)
+      .sorted
     val uniqueStandard = rawHttpRequests.map(_.standard)
       .distinct
-      .sortWith((a, b) => a < b)
+      .sorted
     val uniqueMimeType = rawHttpRequests.map(_.getHeaderValue("Accept"))
       .distinct
-      .sortWith((a, b) => a < b)
+      .sorted
     val uniqueEncoding = rawHttpRequests.map(_.getHeaderValue("Accept-Encoding"))
       .distinct
-      .sortWith((a, b) => a < b)
+      .sorted
     val uniqueCharset = rawHttpRequests.map(_.getHeaderValue("Accept-Charset"))
       .distinct
-      .sortWith((a, b) => a < b)
+      .sorted
     val uniqueLanguage = rawHttpRequests.map(_.getHeaderValue("Accept-Language"))
       .distinct
-      .sortWith((a, b) => a < b)
+      .sorted
     val uniqueContentType = rawHttpRequests.map(_.getHeaderValue("Content-Type"))
       .distinct
-      .sortWith((a, b) => a < b)
+      .sorted
 
-    val list = Map("path" -> uniquePaths, "parameter" -> uniqueParameters, "header" -> uniqueHeaders,
-      "standard" -> uniqueStandard, "MIME type" -> uniqueMimeType, "encoding" -> uniqueEncoding,
-      "charset" -> uniqueCharset, "language" -> uniqueLanguage, "content type" -> uniqueContentType)
+    val uniqueSeqMap = Map("path" -> uniquePaths, "parameter" -> uniqueParameters,
+      "header" -> uniqueHeaders, "standard" -> uniqueStandard, "MIME type" -> uniqueMimeType,
+      "encoding" -> uniqueEncoding, "charset" -> uniqueCharset, "language" -> uniqueLanguage,
+      "content type" -> uniqueContentType)
 
     f"Basic statistics\n" +
       f"Number of HTTP request :${rawHttpRequests.size}\n" +
-      list.map(t => f"Number of unique ${t._1} : ${t._2.size}\n" +
-        f"List of unique ${t._1} : ${t._2.mkString(", ")}\n").mkString
+      uniqueSeqMap.map(t =>
+        f"Number of unique ${t._1} : ${t._2.size}\n" +
+          f"List of unique ${t._1} : ${t._2.mkString(", ")}\n"
+      ).mkString
   }
 
-  def columnNames: String = s"id," +
+  def columnsName: String = s"id," +
     s"method," +
-    s"${Path.columnNames}," +
+    s"${Path.columnsName}," +
     s"num_parameters," +
     s"length_query," +
-    s"printable_characters_ratio_query,non_printable_characters_ratio_query," +
-    s"letter_ratio_query,digit_ratio_query," +
+    s"printable_characters_ratio_query," +
+    s"non_printable_characters_ratio_query," +
+    s"letter_ratio_query," +
+    s"digit_ratio_query," +
     s"symbol_ratio_query," +
-    s"num_headers,standard_headers_ratio,non_standard_headers_ratio," +
-    (for {index <- Header.StandardHeaders.indices} yield Header.columnNames(index) + ",").mkString +
+    s"num_headers," +
+    s"standard_headers_ratio," +
+    s"non_standard_headers_ratio," +
+    s"${Header.columnsName}," +
     s"is_persistent_connection,content_type," +
-    s"${Body.columnNames}"
+    s"${Body.columnsName}"
 
   /**
     * Parse raw HTTP requests contain in file
@@ -223,9 +236,12 @@ object RawHttpRequest {
 
     val value: String
 
-    def toCsv: String = f"$length,$printableCharRatio%.2f," +
-      f"$nonPrintableCharRatio%.2f,$letterRatio%.2f," +
-      f"$digitRatio%.2f,$symbolRatio%.2f"
+    def toCsv: String = f"$length," +
+      f"$printableCharRatio%.2f," +
+      f"$nonPrintableCharRatio%.2f," +
+      f"$letterRatio%.2f," +
+      f"$digitRatio%.2f," +
+      f"$symbolRatio%.2f"
 
     def length: Int = value.length
 
@@ -249,9 +265,12 @@ object RawHttpRequest {
     val key: String
     val values: List[String]
 
-    def toCsv: String = f"$length,$printableCharRatio%.2f," +
-      f"$nonPrintableCharRatio%.2f,$letterRatio%.2f," +
-      f"$digitRatio%.2f,$symbolRatio%.2f"
+    def toCsv: String = f"$length," +
+      f"$printableCharRatio%.2f," +
+      f"$nonPrintableCharRatio%.2f," +
+      f"$letterRatio%.2f," +
+      f"$digitRatio%.2f," +
+      f"$symbolRatio%.2f"
 
     def length: Int = values.size
 
@@ -269,7 +288,10 @@ object RawHttpRequest {
   }
 
   case class Path(value: String) extends SingleValue {
-    override def toCsv: String = super.toCsv + s",$segmentCount,$isFile,$fileExtension"
+    override def toCsv: String = s"${super.toCsv}," +
+      s"$segmentCount," +
+      s"$isFile," +
+      s"$fileExtension"
 
     def segmentCount: Int = value.count(_.equals(Path.Separator))
 
@@ -283,14 +305,17 @@ object RawHttpRequest {
   case class Parameter(key: String, values: List[String] = List[String]()) extends KeyMultivalued
 
   case class Header(key: String, values: List[String] = List[String]()) extends KeyMultivalued {
-    override def toCsv: String = super.toCsv + s",$isStandard"
+    override def toCsv: String = s"${super.toCsv}," +
+      s"$isStandard"
 
     def isStandard: Int = Header.StandardHeaders.exists(standardHeader =>
       standardHeader.key.equals(key)).compareTo(false)
   }
 
   case class Body(value: String) extends SingleValue {
-    override def toCsv: String = super.toCsv + s",$lineNumber,$wordNumber"
+    override def toCsv: String = s"${super.toCsv}," +
+      s"$lineNumber," +
+      s"$wordNumber"
 
     def lineNumber: Int = value.split(Body.newLineRegex).length
 
@@ -301,43 +326,66 @@ object RawHttpRequest {
     val Separator: Char = '/'
     val ExtensionSeparator: Char = '.'
 
-    def columnNames: String = "length_path,printable_characters_ratio_path," +
-      "non_printable_characters_ratio_path,letter_ratio_path," +
-      "digit_ratio_path,symbol_ratio_path," +
-      "num_segment,is_file," +
+    def columnsName: String = "length_path," +
+      "printable_characters_ratio_path," +
+      "non_printable_characters_ratio_path," +
+      "letter_ratio_path," +
+      "digit_ratio_path," +
+      "symbol_ratio_path," +
+      "num_segment," +
+      "is_file," +
       "file_extension"
   }
 
   object Parameter {
-    def columnNames(index: Int): String = s"length_parameter_$index,printable_characters_ratio_parameter_$index," +
-      s"non_printable_characters_ratio_parameter_$index,letter_ratio_parameter_$index," +
-      s"digit_ratio_parameter_$index,symbol_ratio_parameter_$index"
+    def columnsName(key: String): String = {
+      val name = key.replaceAll("[^\\w]", "_").toLowerCase
+      s"length_parameter_$name," +
+        s"printable_characters_ratio_parameter_$name," +
+        s"non_printable_characters_ratio_parameter_$name," +
+        s"letter_ratio_parameter_$name," +
+        s"digit_ratio_parameter_$name," +
+        s"symbol_ratio_parameter_$name"
+    }
   }
 
   object Header {
-    val StandardHeaders: List[Header] = List("Accept", "Accept-Charset", "Accept-Datetime", "Accept-Encoding",
-      "Accept-Language", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Authorization",
-      "Cache-Control", "Connection", "Content-Length", "Content-MD5",
-      "Content-Type", "Cookie", "Date", "Expect",
-      "From", "Host", "If-Match", "If-Modified-Since",
-      "If-None-Match", "If-Range", "If-Unmodified-Since", "Max-Forwards",
-      "Origin", "Pragma", "Proxy-Authorization", "Range",
-      "Referer", "TE", "User-Agent", "Upgrade",
-      "Via", "Warning").map(new Header(_))
+    val StandardHeaders: List[Header] = List("Accept", "Accept-Charset", "Accept-Datetime",
+      "Accept-Encoding", "Accept-Language", "Access-Control-Request-Method",
+      "Access-Control-Request-Headers", "Authorization", "Cache-Control", "Connection",
+      "Content-Length", "Content-MD5", "Content-Type", "Cookie", "Date", "Expect", "From", "Host",
+      "If-Match", "If-Modified-Since", "If-None-Match", "If-Range", "If-Unmodified-Since",
+      "Max-Forwards", "Origin", "Pragma", "Proxy-Authorization", "Range", "Referer", "TE",
+      "User-Agent", "Upgrade", "Via", "Warning"
+    ).map(new Header(_))
 
-    def columnNames(index: Int): String = s"length_header_$index,printable_characters_ratio_header_$index," +
-      s"non_printable_characters_ratio_header_$index,letter_ratio_header_$index," +
-      s"digit_ratio_header_$index,symbol_ratio_header_$index," +
-      s"is_standard_header_$index"
+    def columnsName: String = Header.StandardHeaders.map(header =>
+      columnsName(header.key)
+    ).mkString(",")
+
+    def columnsName(key: String): String = {
+      val name = key.replaceAll("[^\\w]", "_").toLowerCase
+      s"length_header_$name," +
+        s"printable_characters_ratio_header_$name," +
+        s"non_printable_characters_ratio_header_$name," +
+        s"letter_ratio_header_$name," +
+        s"digit_ratio_header_$name," +
+        s"symbol_ratio_header_$name," +
+        s"is_standard_header_$name"
+    }
   }
 
   object Body {
     val newLineRegex: String = "\r\n|\r|\n"
     val wordRegex: String = "\\w+"
 
-    def columnNames: String = "length_body,printable_characters_ratio_body," +
-      "non_printable_characters_ratio_body,letter_ratio_body,digit_ratio_body," +
-      "symbol_ratio_body,num_line,num_word"
+    def columnsName: String = "length_body," +
+      "printable_characters_ratio_body," +
+      "non_printable_characters_ratio_body," +
+      "letter_ratio_body," +
+      "digit_ratio_body," +
+      "symbol_ratio_body," +
+      "num_line,num_word"
   }
 
 }
