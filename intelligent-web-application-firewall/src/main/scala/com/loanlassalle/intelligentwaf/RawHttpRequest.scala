@@ -112,38 +112,25 @@ class RawHttpRequest(val id: BigInt,
 
 object RawHttpRequest {
   def basicStatistics(rawHttpRequests: Seq[RawHttpRequest]): String = {
-    val uniquePaths = rawHttpRequests.map(_.path.value)
-      .distinct
-      .sorted
-    val uniqueParameters = rawHttpRequests.flatMap(_.parameters.map(_.key))
-      .distinct
-      .sorted
-    val uniqueHeaders = rawHttpRequests.flatMap(_.headers.map(_.key))
-      .distinct
-      .sorted
-    val uniqueStandard = rawHttpRequests.map(_.standard)
-      .distinct
-      .sorted
-    val uniqueMimeType = rawHttpRequests.map(_.getHeaderValue("Accept"))
-      .distinct
-      .sorted
-    val uniqueEncoding = rawHttpRequests.map(_.getHeaderValue("Accept-Encoding"))
-      .distinct
-      .sorted
-    val uniqueCharset = rawHttpRequests.map(_.getHeaderValue("Accept-Charset"))
-      .distinct
-      .sorted
-    val uniqueLanguage = rawHttpRequests.map(_.getHeaderValue("Accept-Language"))
-      .distinct
-      .sorted
-    val uniqueContentType = rawHttpRequests.map(_.getHeaderValue("Content-Type"))
-      .distinct
-      .sorted
-
-    val uniqueSeqMap = Map("path" -> uniquePaths, "parameter" -> uniqueParameters,
-      "header" -> uniqueHeaders, "standard" -> uniqueStandard, "MIME type" -> uniqueMimeType,
-      "encoding" -> uniqueEncoding, "charset" -> uniqueCharset, "language" -> uniqueLanguage,
-      "content type" -> uniqueContentType)
+    val uniqueSeqMap = Map("path" -> rawHttpRequests.map(_.path.value)
+      .distinct.sorted,
+      "parameter" -> rawHttpRequests.flatMap(_.parameters.map(_.key))
+        .distinct.sorted,
+      "header" -> rawHttpRequests.flatMap(_.headers.map(_.key))
+        .distinct.sorted,
+      "standard" -> rawHttpRequests.map(_.standard)
+        .distinct.sorted,
+      "MIME type" -> rawHttpRequests.map(_.getHeaderValue("Accept"))
+        .distinct.sorted,
+      "encoding" -> rawHttpRequests.map(_.getHeaderValue("Accept-Encoding"))
+        .distinct.sorted,
+      "charset" -> rawHttpRequests.map(_.getHeaderValue("Accept-Charset"))
+        .distinct.sorted,
+      "language" -> rawHttpRequests.map(_.getHeaderValue("Accept-Language"))
+        .distinct.sorted,
+      "content type" -> rawHttpRequests.map(_.getHeaderValue("Content-Type"))
+        .distinct.sorted
+    )
 
     f"Basic statistics\n" +
       f"Number of HTTP request :${rawHttpRequests.size}\n" +
