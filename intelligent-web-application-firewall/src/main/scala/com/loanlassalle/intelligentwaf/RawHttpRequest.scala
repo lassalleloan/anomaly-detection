@@ -14,9 +14,9 @@ import scala.io.Source
   * @param id             identifier
   * @param requestLine    RFC 2616, Request-Line              ; Section 5.1
   * @param requestHeaders RFC 2616, *(( general-header        ; Section 4.5
-  *                       | request-header         ; Section 5.3
-  *                       | entity-header ) CRLF)  ; Section 7.1
-  *                       CRLF
+  *                                  | request-header         ; Section 5.3
+  *                                  | entity-header ) CRLF)  ; Section 7.1
+  *                                  CRLF
   * @param messageBody    RFC 2616,  [ message-body ]         ; Section 4.3
   */
 class RawHttpRequest(val id: BigInt,
@@ -139,7 +139,6 @@ class RawHttpRequest(val id: BigInt,
     */
   private def parseQuery(query: String): List[Parameter] = {
     val parameterSeparator = '&'
-
     if (query.isEmpty)
       List[Parameter]()
     else
@@ -157,7 +156,6 @@ class RawHttpRequest(val id: BigInt,
     */
   private def parseParameter(parameter: String): (String, String) = {
     val valueSeparator = "="
-
     val index = parameter.indexOf(valueSeparator)
     val key = if (index > 0) parameter.substring(0, index) else parameter
     val value = if (index > 0 && parameter.length > index + valueSeparator.length)
@@ -198,11 +196,11 @@ object RawHttpRequest {
         .distinct.sorted
     )
 
-    f"Basic statistics\n" +
-      f"Number of HTTP request :${rawHttpRequests.size}\n" +
+    f"Basic statistics" + System.lineSeparator() +
+      f"Number of HTTP request :${rawHttpRequests.size}" + System.lineSeparator() +
       uniqueSeqMap.map(t =>
-        f"Number of unique ${t._1} : ${t._2.size}\n" +
-          f"List of unique ${t._1} : ${t._2.mkString(", ")}\n"
+        f"Number of unique ${t._1} : ${t._2.size}" + System.lineSeparator() +
+          f"List of unique ${t._1} : ${t._2.mkString(", ")}" + System.lineSeparator()
       ).mkString
   }
 
@@ -671,5 +669,4 @@ object RawHttpRequest {
       "symbol_ratio_body," +
       "num_line,num_word"
   }
-
 }
