@@ -24,23 +24,13 @@ num_headers: discrete, number of headers
 standard_headers_ratio: continuous, percentage of standard headers in HTTP request
 non_standard_headers_ratio: continuous, percentage of non standard headers in HTTP request
 
-length_header_0: discrete, length of header's value
-printable_characters_ratio_header_0: continuous, percentage of printable characters in header_0
-non_printable_characters_ratio_header_0: continuous, percentage of non printable characters in header_0
-letter_ratio_header_0: continuous, percentage of letter in header_0
-digit_ratio_header_0: continuous, percentage of digit in header_0
-symbol_ratio_header_0: continuous, percentage of symbol in header_0
-is_standard_header_0: discrete, percentage of symbol in header_0
-
-...
-
-length_header_33: discrete, length of header's value
-printable_characters_ratio_header_33: continuous, percentage of printable characters in header_33
-non_printable_characters_ratio_header_33: continuous, percentage of non printable characters in header_33
-letter_ratio_header_33: continuous, percentage of letter in header_33
-digit_ratio_header_33: continuous, percentage of digit in header_33
-symbol_ratio_header_33: continuous, percentage of symbol in header_33
-is_standard_header_33: discrete, percentage of symbol in header_33
+length_header_${header-name}: discrete, length of header's value
+printable_characters_ratio_header_${header-name}: continuous, percentage of printable characters in header_${header-name}
+non_printable_characters_ratio_header_${header-name}: continuous, percentage of non printable characters in header_${header-name}
+letter_ratio_header_${header-name}: continuous, percentage of letter in header_${header-name}
+digit_ratio_header_${header-name}: continuous, percentage of digit in header_${header-name}
+symbol_ratio_header_${header-name}: continuous, percentage of symbol in header_${header-name}
+is_standard_header_${header-name}: discrete, percentage of symbol in header_${header-name}
 
 is_persistent_connection: discrete, indicates if is a persistent connection using value of "Connection" header
 content_type: discrete, indicates the MIME type of the HTTP request content
