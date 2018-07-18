@@ -114,9 +114,9 @@ class RawHttpRequest(val id: BigInt,
     * @return RawHttpRequest in string format
     */
   override def toString: String =
-    s"$method $url $standard" + System.lineSeparator +
-      s"${headers.mkString(System.lineSeparator)}" + System.lineSeparator * 2 +
-      (if (body.length > 0) body else "") + System.lineSeparator
+    s"$method $url $standard${System.lineSeparator}" +
+      s"${headers.mkString(System.lineSeparator)}${System.lineSeparator * 2}" +
+      s"${if (body.length > 0) body else ""}${System.lineSeparator}"
 
   /**
     * Replaces existing Headers in standard Headers list
@@ -223,7 +223,7 @@ object RawHttpRequest {
 
     println(s"Number of HTTP request :${rawHttpRequests.size}")
     uniqueSeqMap.foreach(t => println(
-      s"Number of unique ${t._1} : ${t._2.size}" + System.lineSeparator +
+      s"Number of unique ${t._1} : ${t._2.size}${System.lineSeparator}" +
         s"Sequence of unique ${t._1} : ${t._2.mkString(", ")}"))
   }
 
