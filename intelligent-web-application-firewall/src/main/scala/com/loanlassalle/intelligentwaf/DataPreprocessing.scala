@@ -2,32 +2,41 @@ package com.loanlassalle.intelligentwaf
 
 import java.awt.Desktop
 import java.io.File
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
 
 object DataPreprocessing {
   def main(args: Array[String]): Unit = {
     val resourceFolder = getClass.getResource("/csic_2010_http_dataset/").getPath
 
-    Files.write(Paths.get(resourceFolder + "/column_names.txt"),
-      RawHttpRequest.columnNames.split(',').mkString("\n").getBytes(StandardCharsets.UTF_8))
+    /**
+      * Transforms raw HTTP requests to RawHttpRequest
+      */
+    val rawHttpRequestsTraining = RawHttpRequest.parse(resourceFolder + "/normalTrafficTraining.txt")
+    val rawHttpRequestsTest = RawHttpRequest.parse(resourceFolder + "/normalTrafficTest.txt")
+    val rawHttpRequestsAnomalous = RawHttpRequest.parse(resourceFolder + "/anomalousTrafficTest.txt")
 
-    val rawHttpRequestsTraining = RawHttpRequest.parseFile(resourceFolder + "/normalTrafficTraining.txt")
-    val rawHttpRequestsTest = RawHttpRequest.parseFile(resourceFolder + "/normalTrafficTest.txt")
-    val rawHttpRequestsAnomalous = RawHttpRequest.parseFile(resourceFolder + "/anomalousTrafficTest.txt")
-    val basicsStatisticTraining = RawHttpRequest.basicStatistics(rawHttpRequestsTraining)
-    println(basicsStatisticTraining)
+    /**
+      * Displays some basic statistics
+      */
+    println("Basic statistics of normalTrafficTraining.txt")
+    RawHttpRequest.basicStatistics(rawHttpRequestsTraining)
+    println
+    println("Basic statistics of normalTrafficTest.txt")
+    RawHttpRequest.basicStatistics(rawHttpRequestsTest)
+    println
+    println("Basic statistics of anomalousTrafficTest.txt")
+    RawHttpRequest.basicStatistics(rawHttpRequestsAnomalous)
 
-    Files.write(Paths.get(resourceFolder + "/basics_statistic.txt"),
-      basicsStatisticTraining.getBytes(StandardCharsets.UTF_8))
-    Files.write(Paths.get(resourceFolder + "/normal_traffic_training.csv"),
-      rawHttpRequestsTraining.map(_.toCsv).mkString(System.lineSeparator()).getBytes
-      (StandardCharsets.UTF_8))
-    Files.write(Paths.get(resourceFolder + "/normal_traffic_test.csv"),
-      rawHttpRequestsTest.map(_.toCsv).mkString(System.lineSeparator()).getBytes(StandardCharsets.UTF_8))
-    Files.write(Paths.get(resourceFolder + "/anomalous_traffic_test.csv"),
-      rawHttpRequestsAnomalous.map(_.toCsv).mkString(System.lineSeparator()).getBytes(StandardCharsets.UTF_8))
+    /**
+      * Saves information in CSV format
+      */
+    RawHttpRequest.saveColumnNames(resourceFolder + "/column_names.txt")
+    RawHttpRequest.saveCsv(resourceFolder + "/normal_traffic_training.csv", rawHttpRequestsTraining)
+    RawHttpRequest.saveCsv(resourceFolder + "/normal_traffic_test.csv", rawHttpRequestsTest)
+    RawHttpRequest.saveCsv(resourceFolder + "/anomalous_traffic_test.csv", rawHttpRequestsAnomalous)
 
+    /**
+      * Open targeted directory
+      */
     Desktop.getDesktop.open(new File(resourceFolder))
   }
 }

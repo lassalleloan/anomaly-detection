@@ -21,7 +21,7 @@ import scala.io.Source
   */
 class RawHttpRequest(val id: BigInt,
                      requestLine: String,
-                     requestHeaders: List[Header],
+                     requestHeaders: Seq[Header],
                      messageBody: String) {
   require(requestLine != null && requestLine.count(_.equals(' ')).equals(2))
   require(requestHeaders != null)
@@ -38,9 +38,9 @@ class RawHttpRequest(val id: BigInt,
 
   val method: String = requestLineSplit.head
   val path: Path = Path(pathValue)
-  val parameters: List[Parameter] = parseQuery(query)
+  val parameters: Seq[Parameter] = parseQuery(query)
   val standard: String = requestLineSplit.last
-  val headers: List[Header] = requestHeaders
+  val headers: Seq[Header] = requestHeaders
   val body: Body = new Body(messageBody)
 
   /**
@@ -114,16 +114,16 @@ class RawHttpRequest(val id: BigInt,
     * @return RawHttpRequest in string format
     */
   override def toString: String =
-    s"$method $url $standard" + System.lineSeparator() +
-      s"${headers.mkString(System.lineSeparator())}" + System.lineSeparator() * 2 +
-      (if (body.length > 0) body else "") + System.lineSeparator()
+    s"$method $url $standard" + System.lineSeparator +
+      s"${headers.mkString(System.lineSeparator)}" + System.lineSeparator * 2 +
+      (if (body.length > 0) body else "") + System.lineSeparator
 
   /**
     * Replaces existing Headers in standard Headers list
     *
     * @return standard Headers list with Header of HTTP request
     */
-  private def replaceExistingHeaders: List[Header] =
+  private def replaceExistingHeaders: Seq[Header] =
     Header.StandardHeaders.map { standard =>
       headers.find(header => header.key.equals(standard.key)) match {
         case Some(value) => value
@@ -137,10 +137,10 @@ class RawHttpRequest(val id: BigInt,
     * @param query whole line of query
     * @return list of parameters in query
     */
-  private def parseQuery(query: String): List[Parameter] = {
+  private def parseQuery(query: String): Seq[Parameter] = {
     val parameterSeparator = '&'
     if (query.isEmpty)
-      List[Parameter]()
+      Seq[Parameter]()
     else
       query.split(parameterSeparator)
         .map(parseParameter).toMap
@@ -168,14 +168,40 @@ class RawHttpRequest(val id: BigInt,
 }
 
 object RawHttpRequest {
+  def saveCsv(path: String, rawHttpRequests: Seq[RawHttpRequest]): Unit =
+    Utils.write(path, rawHttpRequests.map(_.toCsv).mkString(System.lineSeparator))
+
+  def saveColumnNames(path: String): Unit =
+    Utils.write(path, columnNames.mkString(System.lineSeparator))
 
   /**
-    * Gets basics statistics on a list of rawHttpRequests
+    * Gets column names of a RawHttpRequest
+    *
+    * @return column names of a RawHttpRequest
+    */
+  def columnNames: Seq[String] = Seq("id", "method") ++
+    Path.columnNames ++
+    Seq("num_parameters",
+      "length_query",
+      "printable_characters_ratio_query",
+      "non_printable_characters_ratio_query",
+      "letter_ratio_query",
+      "digit_ratio_query",
+      "symbol_ratio_query",
+      "num_headers",
+      "standard_headers_ratio",
+      "non_standard_headers_ratio") ++
+    Header.columnNames.flatten ++
+    Seq("is_persistent_connection", "content_type") ++
+    Body.columnNames
+
+  /**
+    * Gets basic statistics on a list of rawHttpRequests
     *
     * @param rawHttpRequests list of rawHttpRequests
-    * @return basics statistics on a list of rawHttpRequests
+    * @return basic statistics on a list of rawHttpRequests
     */
-  def basicStatistics(rawHttpRequests: Seq[RawHttpRequest]): String = {
+  def basicStatistics(rawHttpRequests: Seq[RawHttpRequest]): Unit = {
     val uniqueSeqMap = Map("path" -> rawHttpRequests.map(_.path.value)
       .distinct.sorted,
       "parameter" -> rawHttpRequests.flatMap(_.parameters.map(_.key))
@@ -193,38 +219,13 @@ object RawHttpRequest {
       "language" -> rawHttpRequests.map(_.getHeaderValue("Accept-Language"))
         .distinct.sorted,
       "content type" -> rawHttpRequests.map(_.getHeaderValue("Content-Type"))
-        .distinct.sorted
-    )
+        .distinct.sorted)
 
-    f"Basic statistics" + System.lineSeparator() +
-      f"Number of HTTP request :${rawHttpRequests.size}" + System.lineSeparator() +
-      uniqueSeqMap.map(t =>
-        f"Number of unique ${t._1} : ${t._2.size}" + System.lineSeparator() +
-          f"List of unique ${t._1} : ${t._2.mkString(", ")}" + System.lineSeparator()
-      ).mkString
+    println(s"Number of HTTP request :${rawHttpRequests.size}")
+    uniqueSeqMap.foreach(t => println(
+      s"Number of unique ${t._1} : ${t._2.size}" + System.lineSeparator +
+        s"List of unique ${t._1} : ${t._2.mkString(", ")}"))
   }
-
-  /**
-    * Gets column names of a RawHttpRequest
-    *
-    * @return column names of a RawHttpRequest
-    */
-  def columnNames: String = s"id," +
-    s"method," +
-    s"${Path.columnNames}," +
-    s"num_parameters," +
-    s"length_query," +
-    s"printable_characters_ratio_query," +
-    s"non_printable_characters_ratio_query," +
-    s"letter_ratio_query," +
-    s"digit_ratio_query," +
-    s"symbol_ratio_query," +
-    s"num_headers," +
-    s"standard_headers_ratio," +
-    s"non_standard_headers_ratio," +
-    s"${Header.columnNames}," +
-    s"is_persistent_connection,content_type," +
-    s"${Body.columnNames}"
 
   /**
     * Parses raw HTTP requests contain in file
@@ -233,7 +234,7 @@ object RawHttpRequest {
     * @throws java.io.FileNotFoundException if an I/O error occurs reading the input stream
     * @throws NoSuchElementException        if HTTP Request is malformed
     */
-  def parseFile(filename: String): ListBuffer[RawHttpRequest] = {
+  def parse(filename: String): ListBuffer[RawHttpRequest] = {
     val iterator = Source.fromFile(filename).getLines
     val httpRequests = ListBuffer[RawHttpRequest]()
 
@@ -261,7 +262,7 @@ object RawHttpRequest {
 
     // RFC 2616
     // Request-Line              ; Section 5.1
-    val requestLine = iterator.next()
+    val requestLine = iterator.next
 
     // RFC 2616
     // *(( general-header        ; Section 4.5
@@ -275,7 +276,7 @@ object RawHttpRequest {
 
     // RFC 2616
     // [ message-body ]          ; Section 4.3
-    val messageBody = iterator.takeWhile(_.length > 0).mkString(System.lineSeparator())
+    val messageBody = iterator.takeWhile(_.length > 0).mkString(System.lineSeparator)
 
     new RawHttpRequest(lineNumber, requestLine, requestHeaders, messageBody)
   }
@@ -292,7 +293,7 @@ object RawHttpRequest {
     if (index.equals(-1))
       header -> ""
     else
-      header.substring(0, index) -> header.substring(index + 2, header.length())
+      header.substring(0, index) -> header.substring(index + 2, header.length)
   }
 
   /**
@@ -375,7 +376,7 @@ object RawHttpRequest {
     require(values != null)
 
     val key: String
-    val values: List[String]
+    val values: Seq[String]
 
     /**
       * Represents KeyMultivalued in CSV format with additional attributes
@@ -404,28 +405,28 @@ object RawHttpRequest {
     def printableCharRatio: Double = Utils.printableCharRatio(values)
 
     /**
-      * Get total non printable characters ratio of values
+      * Gets total non printable characters ratio of values
       *
       * @return total non printable characters ratio of values
       */
     def nonPrintableCharRatio: Double = Utils.nonPrintableCharRatio(values)
 
     /**
-      * Get total letters ratio of values
+      * Gets total letters ratio of values
       *
       * @return total letters ratio of values
       */
     def letterRatio: Double = Utils.letterRatio(values)
 
     /**
-      * Get total digits ratio of values
+      * Gets total digits ratio of values
       *
       * @return total digits ratio of values
       */
     def digitRatio: Double = Utils.digitRatio(values)
 
     /**
-      * Get total symbols ratio of values
+      * Gets total symbols ratio of values
       *
       * @return total symbols ratio of values
       */
@@ -486,7 +487,7 @@ object RawHttpRequest {
     * @param key    parameter's name of a raw HTTP request
     * @param values parameter's values of a raw HTTP request
     */
-  case class Parameter(key: String, values: List[String] = List[String]()) extends KeyMultivalued
+  case class Parameter(key: String, values: Seq[String] = Seq[String]()) extends KeyMultivalued
 
   /**
     * Header of a raw HTTP request
@@ -494,7 +495,7 @@ object RawHttpRequest {
     * @param key    header's name of a raw HTTP request
     * @param values header's values of a raw HTTP request
     */
-  case class Header(key: String, values: List[String] = List[String]()) extends KeyMultivalued {
+  case class Header(key: String, values: Seq[String] = Seq[String]()) extends KeyMultivalued {
 
     /**
       * Represents Header in CSV format with additional attributes
@@ -564,15 +565,15 @@ object RawHttpRequest {
       *
       * @return column names of a Path
       */
-    def columnNames: String = "length_path," +
-      "printable_characters_ratio_path," +
-      "non_printable_characters_ratio_path," +
-      "letter_ratio_path," +
-      "digit_ratio_path," +
-      "symbol_ratio_path," +
-      "num_segment," +
-      "is_file," +
-      "file_extension"
+    def columnNames: Seq[String] = Seq("length_path",
+      "printable_characters_ratio_path",
+      "non_printable_characters_ratio_path",
+      "letter_ratio_path",
+      "digit_ratio_path",
+      "symbol_ratio_path",
+      "num_segment",
+      "is_file",
+      "file_extension")
   }
 
   /**
@@ -586,14 +587,14 @@ object RawHttpRequest {
       * @param key parameter's name
       * @return column names of a Parameter
       */
-    def columnNames(key: String): String = {
+    def columnNames(key: String): Seq[String] = {
       val name = key.replaceAll("\\W", "_").toLowerCase
-      s"length_parameter_$name," +
-        s"printable_characters_ratio_parameter_$name," +
-        s"non_printable_characters_ratio_parameter_$name," +
-        s"letter_ratio_parameter_$name," +
-        s"digit_ratio_parameter_$name," +
-        s"symbol_ratio_parameter_$name"
+      Seq(s"length_parameter_$name",
+        s"printable_characters_ratio_parameter_$name",
+        s"non_printable_characters_ratio_parameter_$name",
+        s"letter_ratio_parameter_$name",
+        s"digit_ratio_parameter_$name",
+        s"symbol_ratio_parameter_$name")
     }
   }
 
@@ -603,9 +604,9 @@ object RawHttpRequest {
   object Header {
 
     /**
-      * List of standard Headers
+      * Sequence of standard Headers
       */
-    val StandardHeaders: List[Header] = List("Accept", "Accept-Charset", "Accept-Datetime",
+    val StandardHeaders: Seq[Header] = Seq("Accept", "Accept-Charset", "Accept-Datetime",
       "Accept-Encoding", "Accept-Language", "Access-Control-Request-Method",
       "Access-Control-Request-Headers", "Authorization", "Cache-Control", "Connection",
       "Content-Length", "Content-MD5", "Content-Type", "Cookie", "Date", "Expect", "From", "Host",
@@ -619,9 +620,8 @@ object RawHttpRequest {
       *
       * @return column names of all standard Header list
       */
-    def columnNames: String = Header.StandardHeaders.map(header =>
-      columnNames(header.key)
-    ).mkString(",")
+    def columnNames: Seq[Seq[String]] = Header.StandardHeaders.map(header =>
+      columnNames(header.key))
 
     /**
       * Gets column names of a Header with header's name in suffix
@@ -629,15 +629,15 @@ object RawHttpRequest {
       * @param key header's name
       * @return column names of a Header
       */
-    def columnNames(key: String): String = {
+    def columnNames(key: String): Seq[String] = {
       val name = key.replaceAll("\\W", "_").toLowerCase
-      s"length_header_$name," +
-        s"printable_characters_ratio_header_$name," +
-        s"non_printable_characters_ratio_header_$name," +
-        s"letter_ratio_header_$name," +
-        s"digit_ratio_header_$name," +
-        s"symbol_ratio_header_$name," +
-        s"is_standard_header_$name"
+      Seq(s"length_header_$name",
+        s"printable_characters_ratio_header_$name",
+        s"non_printable_characters_ratio_header_$name",
+        s"letter_ratio_header_$name",
+        s"digit_ratio_header_$name",
+        s"symbol_ratio_header_$name",
+        s"is_standard_header_$name")
     }
   }
 
@@ -661,12 +661,14 @@ object RawHttpRequest {
       *
       * @return column names of a Body
       */
-    def columnNames: String = "length_body," +
-      "printable_characters_ratio_body," +
-      "non_printable_characters_ratio_body," +
-      "letter_ratio_body," +
-      "digit_ratio_body," +
-      "symbol_ratio_body," +
-      "num_line,num_word"
+    def columnNames: Seq[String] = Seq("length_body",
+      "printable_characters_ratio_body",
+      "non_printable_characters_ratio_body",
+      "letter_ratio_body",
+      "digit_ratio_body",
+      "symbol_ratio_body",
+      "num_line",
+      "num_word")
   }
+
 }
