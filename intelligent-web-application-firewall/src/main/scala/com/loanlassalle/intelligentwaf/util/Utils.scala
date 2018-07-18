@@ -1,7 +1,7 @@
 package com.loanlassalle.intelligentwaf.util
 
 /**
-  * A toolbox for basics statistic
+  * A toolbox for basic statistics
   */
 object Utils {
 
