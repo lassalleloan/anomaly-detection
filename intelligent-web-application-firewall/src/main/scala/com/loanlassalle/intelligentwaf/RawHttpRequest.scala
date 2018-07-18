@@ -145,7 +145,7 @@ class RawHttpRequest(val id: BigInt,
       query.split(parameterSeparator)
         .map(parseParameter).toMap
         .groupBy(_._1)
-        .map(t => new Parameter(t._1, t._2.values.toList)).toList
+        .map(t => new Parameter(t._1, t._2.values.toSeq)).toSeq
   }
 
   /**
@@ -224,7 +224,7 @@ object RawHttpRequest {
     println(s"Number of HTTP request :${rawHttpRequests.size}")
     uniqueSeqMap.foreach(t => println(
       s"Number of unique ${t._1} : ${t._2.size}" + System.lineSeparator +
-        s"List of unique ${t._1} : ${t._2.mkString(", ")}"))
+        s"Sequence of unique ${t._1} : ${t._2.mkString(", ")}"))
   }
 
   /**
@@ -234,22 +234,22 @@ object RawHttpRequest {
     * @throws java.io.FileNotFoundException if an I/O error occurs reading the input stream
     * @throws NoSuchElementException        if HTTP Request is malformed
     */
-  def parse(filename: String): ListBuffer[RawHttpRequest] = {
+  def parse(filename: String): Seq[RawHttpRequest] = {
     val iterator = Source.fromFile(filename).getLines
-    val httpRequests = ListBuffer[RawHttpRequest]()
+    val rawHttpRequests = ListBuffer[RawHttpRequest]()
 
     var nextId: BigInt = 1
 
     while (iterator.hasNext) {
       val lastRawHttpRequest = parse(iterator, nextId)
-      httpRequests += lastRawHttpRequest
+      rawHttpRequests += lastRawHttpRequest
 
       nextId = lastRawHttpRequest.id + 1 +
         lastRawHttpRequest.headers.size +
         (if (lastRawHttpRequest.body.value.isEmpty) 2 else 3)
     }
 
-    httpRequests
+    rawHttpRequests
   }
 
   /**
@@ -272,7 +272,7 @@ object RawHttpRequest {
     val requestHeaders = iterator.takeWhile(_.length > 0)
       .map(parseHeader).toMap
       .groupBy(_._1)
-      .map(t => Header(t._1, t._2.values.toList)).toList
+      .map(t => Header(t._1, t._2.values.toSeq)).toSeq
 
     // RFC 2616
     // [ message-body ]          ; Section 4.3
