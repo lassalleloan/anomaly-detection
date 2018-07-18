@@ -20,6 +20,7 @@ object Utils {
 
   /**
     * Counts number of non printable characters in a string
+    *
     * @param str string
     * @return number of non printable characters in a string
     */
@@ -28,17 +29,6 @@ object Utils {
       str.length
     else
       str.length - printableCharCount(str)
-
-  /**
-    * Counts number of printable characters in a string
-    * @param str string
-    * @return number of printable characters in a string
-    */
-  def printableCharCount(str: String): Int =
-    if (str.isEmpty)
-      str.length
-    else
-      "[ -~]".r.findAllIn(str).length
 
   /**
     * Gets total printable characters ratio of sequence of string
@@ -68,6 +58,7 @@ object Utils {
 
   /**
     * Counts number of symbols in a string
+    *
     * @param str string
     * @return number of symbols in a string
     */
@@ -76,6 +67,30 @@ object Utils {
       str.length
     else
       printableCharCount(str) - letterCount(str) - digitCount(str)
+
+  /**
+    * Counts number of printable characters in a string
+    *
+    * @param str string
+    * @return number of printable characters in a string
+    */
+  def printableCharCount(str: String): Int =
+    if (str.isEmpty)
+      str.length
+    else
+      "[ -~]".r.findAllIn(str).length
+
+  /**
+    * Counts number of letters in a string
+    *
+    * @param str string
+    * @return number of letters in a string
+    */
+  def letterCount(str: String): Int =
+    if (str.isEmpty)
+      str.length
+    else
+      str.count(_.isLetter)
 
   /**
     * Gets total letters ratio of sequence of string
@@ -89,17 +104,6 @@ object Utils {
     else
       seq.foldLeft(0)((sum, value) => sum + letterCount(value)) /
         seq.foldLeft(0.0)((sum, value) => sum + value.length)
-
-  /**
-    * Counts number of letters in a string
-    * @param str string
-    * @return number of letters in a string
-    */
-  def letterCount(str: String): Int =
-    if (str.isEmpty)
-      str.length
-    else
-      str.count(_.isLetter)
 
   /**
     * Gets total digits ratio of sequence of string
@@ -116,6 +120,7 @@ object Utils {
 
   /**
     * Counts number of digits in a string
+    *
     * @param str string
     * @return number of digits in a string
     */
