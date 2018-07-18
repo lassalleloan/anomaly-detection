@@ -1,9 +1,14 @@
 package com.loanlassalle.intelligentwaf.util
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Paths}
+
 /**
   * A toolbox for basic statistics
   */
 object Utils {
+  def write(path: String, data: String): Unit =
+    Files.write(Paths.get(path), data.getBytes(StandardCharsets.UTF_8))
 
   /**
     * Gets total non printable characters ratio of sequence of string
