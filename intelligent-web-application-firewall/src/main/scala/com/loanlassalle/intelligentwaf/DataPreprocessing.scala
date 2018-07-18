@@ -9,7 +9,7 @@ object DataPreprocessing {
   def main(args: Array[String]): Unit = {
     val resourceFolder = getClass.getResource("/csic_2010_http_dataset/").getPath
 
-    Files.write(Paths.get(resourceFolder + "/columns_name.txt"),
+    Files.write(Paths.get(resourceFolder + "/column_names.txt"),
       RawHttpRequest.columnNames.split(',').mkString("\n").getBytes(StandardCharsets.UTF_8))
 
     val rawHttpRequestsTraining = RawHttpRequest.parseFile(resourceFolder + "/normalTrafficTraining.txt")
