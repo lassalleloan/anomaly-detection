@@ -36,7 +36,8 @@ object IntelligentWaf {
     /**
       * Evaluates KMeans model with all combinations of parameters and determine best model using
       */
-        AnomalyDetector.showEvaluationResults(AnomalyDetector.evaluate(training))
+    AnomalyDetector.showEvaluationResults(AnomalyDetector.evaluate(training))
+    println
 
     /**
       * Trains and validates the model
