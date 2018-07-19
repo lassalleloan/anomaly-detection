@@ -6,6 +6,7 @@ import org.apache.spark.ml.evaluation.ClusteringEvaluator
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg.{Vector, Vectors}
 import org.apache.spark.ml.tuning.{ParamGridBuilder, TrainValidationSplit, TrainValidationSplitModel}
+import org.apache.spark.sql
 import org.apache.spark.sql.{DataFrame, Row, SaveMode, SparkSession}
 
 import scala.util.Random
@@ -13,7 +14,12 @@ import scala.util.Random
 /**
   * Used to detect anomalies in sequence of raw HTTP requests
   */
-class AnomalyDetector(val sparkSession: SparkSession) extends Serializable {
+object AnomalyDetector extends Serializable {
+
+  val SparkSession: SparkSession = sql.SparkSession.builder
+    .master("local[*]")
+    .appName("Spark Intelligent WAF")
+    .getOrCreate
 
   /**
     * Pre-processes raw data to obtain CSV data format
@@ -44,7 +50,7 @@ class AnomalyDetector(val sparkSession: SparkSession) extends Serializable {
   def preProcessing(path: String, columnNames: String*): DataFrame = {
 
     // Gets data in CSV file
-    val dataFrame = sparkSession.read
+    val dataFrame = SparkSession.read
       .option("inferSchema", value = true)
       .option("header", value = false)
       .csv(path)
@@ -131,7 +137,7 @@ class AnomalyDetector(val sparkSession: SparkSession) extends Serializable {
     val predictions = model.transform(dataFrame)
 
     // Gets threshold to predict anomalies
-    import sparkSession.implicits._
+    import SparkSession.implicits._
     val threshold = predictions.map(distanceToCentroid(model, _))
       .orderBy($"value".desc)
       .take(1000)
@@ -178,19 +184,6 @@ class AnomalyDetector(val sparkSession: SparkSession) extends Serializable {
   }
 
   /**
-    * Gets the distance between the record and the centroid
-    *
-    * @param model KMeansModel
-    * @param row   row of a record
-    * @return distance between the record and the centroid
-    */
-  private def distanceToCentroid(model: KMeansModel, row: Row): Double = {
-    val prediction = row.getAs[Int]("prediction")
-    val features = row.getAs[Vector]("scaled_features")
-    Vectors.sqdist(model.clusterCenters(prediction), features)
-  }
-
-  /**
     * Evaluates KMeans model with all combinations of parameters and determine best model using
     *
     * @param model train validation split model
@@ -212,7 +205,7 @@ class AnomalyDetector(val sparkSession: SparkSession) extends Serializable {
     val results = params.zip(metrics).zip(average).map {
       case ((paramPair, metric), avg) => (paramPair, metric, avg)
     }
-    
+
     // Show results
     results.foreach(row =>
       println(f"params: {${row._1.map(param => s"${param._1}: ${param._2}").mkString(", ")}}, " +
@@ -221,8 +214,8 @@ class AnomalyDetector(val sparkSession: SparkSession) extends Serializable {
 
     // Gets best result
     val bestResult = results.maxBy(_._3)
-    println(f"Best model:\n" +
-      f"${bestResult._1.map(param => s"${param._1}: ${param._2}").mkString(", ")}}," +
+    println(f"Best model:" +
+      f"{${bestResult._1.map(param => s"${param._1}: ${param._2}").mkString(", ")}}," +
       f"$metricName: ${bestResult._2}%.6f, " +
       f"avg: ${bestResult._3}%.6f")
   }
@@ -238,6 +231,19 @@ class AnomalyDetector(val sparkSession: SparkSession) extends Serializable {
   def test(model: KMeansModel, threshold: Double, dataFrame: DataFrame): DataFrame = {
     val predictions = model.transform(dataFrame)
     predictions.filter(distanceToCentroid(model, _) >= threshold)
+  }
+
+  /**
+    * Gets the distance between the record and the centroid
+    *
+    * @param model KMeansModel
+    * @param row   row of a record
+    * @return distance between the record and the centroid
+    */
+  private def distanceToCentroid(model: KMeansModel, row: Row): Double = {
+    val prediction = row.getAs[Int]("prediction")
+    val features = row.getAs[Vector]("scaled_features")
+    Vectors.sqdist(model.clusterCenters(prediction), features)
   }
 
   /**

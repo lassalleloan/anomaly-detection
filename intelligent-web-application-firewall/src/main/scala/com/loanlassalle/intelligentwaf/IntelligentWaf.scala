@@ -1,52 +1,54 @@
 package com.loanlassalle.intelligentwaf
 
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SparkSession
-
-import scala.io.Source
 
 object IntelligentWaf {
   def main(args: Array[String]): Unit = {
+
+    /**
+      * Disables some types of logger message
+      */
     Logger.getLogger("org").setLevel(Level.ERROR)
     Logger.getLogger("com").setLevel(Level.ERROR)
 
-    val sparkSession = SparkSession.builder
-      .master("local[*]")
-      .appName("Spark Intelligent WAF")
-      .getOrCreate
+    val resourcesPath = getClass.getResource("/csic_2010_http_dataset").getPath
 
-    val resourceFolder = getClass.getResource("/csic_2010_http_dataset/").getPath
-    val columns = Source.fromFile(resourceFolder + "column_names.txt").getLines().toArray
-    val anomalyDetector = new AnomalyDetector(sparkSession)
+    /**
+      * Raw-processes of raw data for anomaly detection
+      */
+        AnomalyDetector.rawPreProcessing(resourcesPath,
+          "normalTrafficTraining.txt",
+          "normal_traffic_training.csv")
+        println
+        AnomalyDetector.rawPreProcessing(resourcesPath,
+          "anomalousTrafficTest.txt",
+          "anomalous_traffic_test.csv")
+        println
 
-    val trainingDataFrame = sparkSession.read
-      .option("inferSchema", value = true)
-      .option("header", value = false)
-      .csv(resourceFolder + "normal_traffic_training.csv")
-      .toDF(columns: _*)
+    val columnNames = RawHttpRequest.columnNames
+    val training = AnomalyDetector
+      .preProcessing(s"$resourcesPath/normal_traffic_training.csv", columnNames: _*)
 
-    //    val normalTestDataFrame = sparkSession.read
-    //      .option("inferSchema", value = true)
-    //      .option("header", value = false)
-    //      .csv(resourceFolder + "normal_traffic_test.csv")
-    //      .toDF(columns: _*)
+    /**
+      * Evaluates KMeans model with all combinations of parameters and determine best model using
+      */
+        AnomalyDetector.showEvaluationResults(AnomalyDetector.evaluate(training))
 
-    val anomalousTestDataFrame = sparkSession.read
-      .option("inferSchema", value = true)
-      .option("header", value = false)
-      .csv(resourceFolder + "anomalous_traffic_test.csv")
-      .toDF(columns: _*)
+    /**
+      * Trains and validates the model
+      */
+    val (model, threshold) = AnomalyDetector.train(training)
 
-    //    anomalyDetector.clusteringTake(trainingDataFrame)
+    /**
+      * Tests the model
+      */
+    val test = AnomalyDetector
+      .preProcessing(s"$resourcesPath/normal_traffic_test.csv", columnNames: _*)
+    val anomalies = AnomalyDetector.test(model, threshold, test)
 
-    val (kMeansModel, threshold) = anomalyDetector.train(trainingDataFrame)
-    val anomalies = anomalyDetector.test(kMeansModel, anomalousTestDataFrame, threshold)
-
-    println("Intelligent WAF")
-    println(s"Number of anomalies in file: ${anomalousTestDataFrame.count()}")
-    println(s"Number of anomalies detected: ${anomalies.count()}")
-    println(anomalies.first)
-
-    sparkSession.stop
+    println("Intelligent WAF on normal_traffic_test.csv")
+    println(s"Number of rows in file: ${test.count}")
+    println(s"Number of anomalies detected: ${anomalies.count}")
+    anomalies.show(3)
   }
 }
