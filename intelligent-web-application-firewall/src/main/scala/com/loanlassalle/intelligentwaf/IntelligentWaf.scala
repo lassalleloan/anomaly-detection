@@ -16,14 +16,18 @@ object IntelligentWaf {
     /**
       * Raw-processes of raw data for anomaly detection
       */
-        AnomalyDetector.rawPreProcessing(resourcesPath,
-          "normalTrafficTraining.txt",
-          "normal_traffic_training.csv")
-        println
-        AnomalyDetector.rawPreProcessing(resourcesPath,
-          "anomalousTrafficTest.txt",
-          "anomalous_traffic_test.csv")
-        println
+    AnomalyDetector.rawPreProcessing(resourcesPath,
+      "normalTrafficTraining.txt",
+      "normal_traffic_training.csv")
+    println
+    AnomalyDetector.rawPreProcessing(resourcesPath,
+      "anomalousTrafficTest.txt",
+      "anomalous_traffic_test.csv")
+    println
+    AnomalyDetector.rawPreProcessing(resourcesPath,
+      "normalTrafficTest.txt",
+      "normal_traffic_test.csv")
+    println
 
     val columnNames = RawHttpRequest.columnNames
     val training = AnomalyDetector
