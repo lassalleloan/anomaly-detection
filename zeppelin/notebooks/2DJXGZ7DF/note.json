@@ -1,9 +1,9 @@
 {
   "paragraphs": [
     {
-      "text": "%md\n# Anomaly Detection\n#### author: Loan Lassalle",
+      "text": "%md\n# Intelligent Web Application Firewall\n\nAuthor: Loan Lassalle\n---\n\nAn Intelligent Web Application Firewall using Spark MLlib and k-Means model.",
       "user": "anonymous",
-      "dateUpdated": "Jul 7, 2018 4:22:03 PM",
+      "dateUpdated": "Jul 20, 2018 9:39:53 PM",
       "config": {
         "colWidth": 12.0,
         "enabled": true,
@@ -12,23 +12,36 @@
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorMode": "ace/mode/markdown"
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
       },
       "settings": {
         "params": {},
         "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch1\u003eIntelligent Web Application Firewall\u003c/h1\u003e\n\u003ch2\u003eAuthor: Loan Lassalle\u003c/h2\u003e\n\u003cp\u003eAn Intelligent Web Application Firewall using Spark MLlib and k-Means model.\u003c/p\u003e\n\u003c/div\u003e"
+          }
+        ]
       },
       "apps": [],
       "jobName": "paragraph_1530980508239_588038283",
       "id": "20180707-162148_1003169724",
       "dateCreated": "Jul 7, 2018 4:21:48 PM",
-      "status": "READY",
+      "dateStarted": "Jul 20, 2018 9:39:54 PM",
+      "dateFinished": "Jul 20, 2018 9:39:54 PM",
+      "status": "FINISHED",
       "progressUpdateIntervalMs": 500
     },
     {
-      "text": "%md\n### Loading data",
+      "text": "import java.nio.charset.StandardCharsets\nimport java.nio.file.{Files, Paths}\nimport java.net.URL\nimport scala.collection.mutable.ListBuffer\nimport scala.io.Source\nimport org.apache.spark.ml.Pipeline\nimport org.apache.spark.ml.clustering.{KMeans, KMeansModel}\nimport org.apache.spark.ml.evaluation.ClusteringEvaluator\nimport org.apache.spark.ml.feature._\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\nimport org.apache.spark.ml.tuning.{ParamGridBuilder, TrainValidationSplit, TrainValidationSplitModel}\nimport org.apache.spark.mllib.evaluation.MulticlassMetrics\nimport org.apache.spark.sql\nimport org.apache.spark.sql._\n\nimport scala.util.Random",
       "user": "anonymous",
-      "dateUpdated": "Jul 7, 2018 4:22:41 PM",
+      "dateUpdated": "Jul 20, 2018 10:06:22 PM",
       "config": {
         "colWidth": 12.0,
         "enabled": true,
@@ -37,16 +50,616 @@
           "language": "markdown",
           "editOnDblClick": true
         },
-        "editorMode": "ace/mode/markdown"
+        "editorMode": "ace/mode/markdown",
+        "editorHide": false,
+        "tableHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import java.nio.charset.StandardCharsets\nimport java.nio.file.{Files, Paths}\nimport java.net.URL\nimport scala.collection.mutable.ListBuffer\nimport scala.io.Source\nimport org.apache.spark.ml.Pipeline\nimport org.apache.spark.ml.clustering.{KMeans, KMeansModel}\nimport org.apache.spark.ml.feature._\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\nimport org.apache.spark.ml.tuning.{ParamGridBuilder, TrainValidationSplit, TrainValidationSplitModel}\nimport org.apache.spark.mllib.evaluation.MulticlassMetrics\nimport org.apache.spark.sql\nimport org.apache.spark.sql._\n\u003cconsole\u003e:115: error: not found: value RawHttpRequest\n       import RawHttpRequest._\n              ^\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532124015754_881986682",
+      "id": "20180720-220015_212963539",
+      "dateCreated": "Jul 20, 2018 10:00:15 PM",
+      "dateStarted": "Jul 20, 2018 10:05:43 PM",
+      "dateFinished": "Jul 20, 2018 10:05:47 PM",
+      "status": "ERROR",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "/**\n  * A toolbox for basic statistics\n  */\nobject Utils {\n  def write(path: String, data: String): Unit \u003d\n    Files.write(Paths.get(path), data.getBytes(StandardCharsets.UTF_8))\n\n  /**\n    * Gets total non printable characters ratio of sequence of string\n    *\n    * @param seq sequence of string\n    * @return total non printable characters ratio of sequence of string\n    */\n  def nonPrintableCharRatio(seq: Seq[String]): Double \u003d\n    if (seq.isEmpty || seq.forall(_.isEmpty))\n      0\n    else\n      seq.foldLeft(0)((sum, value) \u003d\u003e sum + nonPrintableCharCount(value)) /\n        seq.foldLeft(0.0)((sum, value) \u003d\u003e sum + value.length)\n\n  /**\n    * Counts number of non printable characters in a string\n    *\n    * @param str string\n    * @return number of non printable characters in a string\n    */\n  def nonPrintableCharCount(str: String): Int \u003d\n    if (str.isEmpty)\n      str.length\n    else\n      str.length - printableCharCount(str)\n\n  /**\n    * Gets total printable characters ratio of sequence of string\n    *\n    * @param seq sequence of string\n    * @return total printable characters ratio of sequence of string\n    */\n  def printableCharRatio(seq: Seq[String]): Double \u003d\n    if (seq.isEmpty || seq.forall(_.isEmpty))\n      0\n    else\n      seq.foldLeft(0)((sum, value) \u003d\u003e sum + printableCharCount(value)) /\n        seq.foldLeft(0.0)((sum, value) \u003d\u003e sum + value.length)\n\n  /**\n    * Gets total symbols ratio of sequence of string\n    *\n    * @param seq sequence of string\n    * @return total symbols ratio of sequence of string\n    */\n  def symbolRatio(seq: Seq[String]): Double \u003d\n    if (seq.isEmpty || seq.forall(_.isEmpty))\n      0\n    else\n      seq.foldLeft(0)((sum, value) \u003d\u003e sum + symbolCount(value)) /\n        seq.foldLeft(0.0)((sum, value) \u003d\u003e sum + value.length)\n\n  /**\n    * Counts number of symbols in a string\n    *\n    * @param str string\n    * @return number of symbols in a string\n    */\n  def symbolCount(str: String): Int \u003d\n    if (str.isEmpty)\n      str.length\n    else\n      printableCharCount(str) - letterCount(str) - digitCount(str)\n\n  /**\n    * Counts number of printable characters in a string\n    *\n    * @param str string\n    * @return number of printable characters in a string\n    */\n  def printableCharCount(str: String): Int \u003d\n    if (str.isEmpty)\n      str.length\n    else\n      \"[ -~]\".r.findAllIn(str).length\n\n  /**\n    * Counts number of letters in a string\n    *\n    * @param str string\n    * @return number of letters in a string\n    */\n  def letterCount(str: String): Int \u003d\n    if (str.isEmpty)\n      str.length\n    else\n      str.count(_.isLetter)\n\n  /**\n    * Gets total letters ratio of sequence of string\n    *\n    * @param seq sequence of string\n    * @return total letters ratio of sequence of string\n    */\n  def letterRatio(seq: Seq[String]): Double \u003d\n    if (seq.isEmpty || seq.forall(_.isEmpty))\n      0\n    else\n      seq.foldLeft(0)((sum, value) \u003d\u003e sum + letterCount(value)) /\n        seq.foldLeft(0.0)((sum, value) \u003d\u003e sum + value.length)\n\n  /**\n    * Gets total digits ratio of sequence of string\n    *\n    * @param seq sequence of string\n    * @return total digits ratio of sequence of string\n    */\n  def digitRatio(seq: Seq[String]): Double \u003d\n    if (seq.isEmpty || seq.forall(_.isEmpty))\n      0\n    else\n      seq.foldLeft(0)((sum, value) \u003d\u003e sum + digitCount(value)) /\n        seq.foldLeft(0.0)((sum, value) \u003d\u003e sum + value.length)\n\n  /**\n    * Counts number of digits in a string\n    *\n    * @param str string\n    * @return number of digits in a string\n    */\n  def digitCount(str: String): Int \u003d\n    if (str.isEmpty)\n      str.length\n    else\n      str.count(_.isDigit)\n}\n",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 10:01:06 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "defined object Utils\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123619552_-223728582",
+      "id": "20180720-215339_1720871517",
+      "dateCreated": "Jul 20, 2018 9:53:39 PM",
+      "dateStarted": "Jul 20, 2018 10:01:06 PM",
+      "dateFinished": "Jul 20, 2018 10:01:06 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "/**\n  * Raw HTTP request, RFC 2616\n  *\n  * @param id             identifier\n  * @param requestLine    RFC 2616, Request-Line              ; Section 5.1\n  * @param requestHeaders RFC 2616, *(( general-header        ; Section 4.5\n  *                                  | request-header         ; Section 5.3\n  *                                  | entity-header ) CRLF)  ; Section 7.1\n  *                                  CRLF\n  * @param messageBody    RFC 2616,  [ message-body ]         ; Section 4.3\n  * @param label          type of raw HTTP request (e.g. normal)\n  */\nclass RawHttpRequest(val id: BigInt,\n                     requestLine: String,\n                     requestHeaders: Seq[Header],\n                     messageBody: String,\n                     val label: String \u003d \"\") {\n  require(requestLine !\u003d null \u0026\u0026 requestLine.count(_.equals(\u0027 \u0027)).equals(2))\n  require(requestHeaders !\u003d null)\n  require(messageBody !\u003d null)\n\n  private val requestLineSplit: Array[String] \u003d requestLine.split(\" \")\n  private val url: URL \u003d try {\n    new URL(requestLineSplit.tail.head)\n  } catch {\n    case _: Throwable \u003d\u003e null\n  }\n  private val query: String \u003d if (url \u003d\u003d null || url.getQuery \u003d\u003d null) \"\" else url.getQuery\n  private val pathValue: String \u003d if (url \u003d\u003d null || url.getPath \u003d\u003d null) \"\" else url.getPath\n\n  val method: String \u003d requestLineSplit.head\n  val path: Path \u003d Path(pathValue)\n  val parameters: Seq[Parameter] \u003d parseQuery(query)\n  val standard: String \u003d requestLineSplit.last\n  val headers: Seq[Header] \u003d requestHeaders\n  val body: Body \u003d new Body(messageBody)\n\n  /**\n    * Represents RawHttpRequest in CSV format with additional attributes\n    *\n    * @return RawHttpRequest in CSV format\n    */\n  def toCsv: String \u003d f\"$id,\" +\n    f\"$method,\" +\n    f\"${path.toCsv},\" +\n    f\"${parameters.size},\" +\n    f\"${query.length},\" +\n    f\"${Utils.printableCharRatio(Seq(query))}%.2f,\" +\n    f\"${Utils.nonPrintableCharRatio(Seq(query))}%.2f,\" +\n    f\"${Utils.letterRatio(Seq(query))}%.2f,\" +\n    f\"${Utils.digitRatio(Seq(query))}%.2f,\" +\n    f\"${Utils.symbolRatio(Seq(query))}%.2f,\" +\n    f\"${headers.size},\" +\n    f\"$getStandardHeaderRatio%.2f,\" +\n    f\"$getNonStandardHeaderRatio%.2f,\" +\n    f\"${replaceExistingHeaders.map(_.toCsv).mkString(\",\")},\" +\n    f\"$isPersistentConnection,\" +\n    f\"${getHeaderValue(\"Content-Type\")},\" +\n    f\"${body.toCsv},\" +\n    f\"$label\"\n\n  /**\n    * Indicates if the connection is persistent\n    *\n    * @return true if the connection is persistent, false otherwise\n    */\n  def isPersistentConnection: Int \u003d headers.exists(header \u003d\u003e\n    header.key.equals(\"Connection\") \u0026\u0026 header.values.contains(\"keep-alive\")).compareTo(false)\n\n  /**\n    * Gets value of a Header\n    *\n    * @param headerName header\u0027s name\n    * @return value of a Header, \"no_content\" if value is empty\n    */\n  def getHeaderValue(headerName: String): String \u003d\n    headers.find(header \u003d\u003e header.key.equals(headerName)) match {\n      case Some(value) \u003d\u003e value.values.head.takeWhile(_ !\u003d \u0027,\u0027)\n      case _ \u003d\u003e \"no_content\"\n    }\n\n  /**\n    * Gets non standard Header ratio in headers of raw HTTP request\n    *\n    * @return non standard Header ratio in headers of raw HTTP request\n    */\n  def getNonStandardHeaderRatio: Double \u003d\n    if (headers.isEmpty)\n      headers.size\n    else\n      1 - getStandardHeaderRatio\n\n  /**\n    * Gets standard Header ratio in headers of raw HTTP request\n    *\n    * @return standard Header ratio in headers of raw HTTP request\n    */\n  def getStandardHeaderRatio: Double \u003d\n    if (headers.isEmpty)\n      headers.size\n    else\n      headers.count(element \u003d\u003e element.isStandard.equals(1)) / headers.size.toDouble\n\n  /**\n    * Represents RawHttpRequest in string format\n    *\n    * @return RawHttpRequest in string format\n    */\n  override def toString: String \u003d\n    s\"$method $url $standard${System.lineSeparator}\" +\n      s\"${headers.mkString(System.lineSeparator)}${System.lineSeparator * 2}\" +\n      s\"${if (body.length \u003e 0) body else \"\"}${System.lineSeparator}\"\n\n  /**\n    * Replaces existing Headers in standard Headers list\n    *\n    * @return standard Headers list with Header of HTTP request\n    */\n  private def replaceExistingHeaders: Seq[Header] \u003d\n    Header.StandardHeaders.map { standard \u003d\u003e\n      headers.find(header \u003d\u003e header.key.equals(standard.key)) match {\n        case Some(value) \u003d\u003e value\n        case _ \u003d\u003e standard\n      }\n    }\n\n  /**\n    * Parses query of a raw HTTP request\n    *\n    * @param query whole line of query\n    * @return list of parameters in query\n    */\n  private def parseQuery(query: String): Seq[Parameter] \u003d {\n    val parameterSeparator \u003d \u0027\u0026\u0027\n    if (query.isEmpty)\n      Seq[Parameter]()\n    else\n      query.split(parameterSeparator)\n        .map(parseParameter).toMap\n        .groupBy(_._1)\n        .map(t \u003d\u003e new Parameter(t._1, t._2.values.toSeq)).toSeq\n  }\n\n  /**\n    * Parses parameter of a raw HTTP request\n    *\n    * @param parameter whole line of an parameter\n    * @return parameter\u0027s name and header\u0027s value\n    */\n  private def parseParameter(parameter: String): (String, String) \u003d {\n    val valueSeparator \u003d \"\u003d\"\n    val index \u003d parameter.indexOf(valueSeparator)\n    val key \u003d if (index \u003e 0) parameter.substring(0, index) else parameter\n    val value \u003d if (index \u003e 0 \u0026\u0026 parameter.length \u003e index + valueSeparator.length)\n      parameter.substring(index + valueSeparator.length)\n    else\n      \"\"\n\n    key -\u003e value\n  }\n}\n\nobject RawHttpRequest {\n  def saveCsv(path: String, rawHttpRequests: Seq[RawHttpRequest]): Unit \u003d\n    Utils.write(path, rawHttpRequests.map(_.toCsv).mkString(System.lineSeparator))\n\n  def saveColumnNames(path: String): Unit \u003d\n    Utils.write(path, columnNames.mkString(System.lineSeparator))\n\n  /**\n    * Gets column names of a RawHttpRequest\n    *\n    * @return column names of a RawHttpRequest\n    */\n  def columnNames: Seq[String] \u003d Seq(\"id\", \"method\") ++\n    Path.columnNames ++\n    Seq(\"num_parameters\",\n      \"length_query\",\n      \"printable_characters_ratio_query\",\n      \"non_printable_characters_ratio_query\",\n      \"letter_ratio_query\",\n      \"digit_ratio_query\",\n      \"symbol_ratio_query\",\n      \"num_headers\",\n      \"standard_headers_ratio\",\n      \"non_standard_headers_ratio\") ++\n    Header.columnNames.flatten ++\n    Seq(\"is_persistent_connection\", \"content_type\") ++\n    Body.columnNames ++\n    Seq(\"label\")\n\n  /**\n    * Gets basic statistics on a list of rawHttpRequests\n    *\n    * @param rawHttpRequests list of rawHttpRequests\n    * @return basic statistics on a list of rawHttpRequests\n    */\n  def basicStatistics(rawHttpRequests: Seq[RawHttpRequest]): Unit \u003d {\n    val uniqueSeqMap \u003d Map(\"path\" -\u003e rawHttpRequests.map(_.path.value)\n      .distinct.sorted,\n      \"parameter\" -\u003e rawHttpRequests.flatMap(_.parameters.map(_.key))\n        .distinct.sorted,\n      \"header\" -\u003e rawHttpRequests.flatMap(_.headers.map(_.key))\n        .distinct.sorted,\n      \"standard\" -\u003e rawHttpRequests.map(_.standard)\n        .distinct.sorted,\n      \"MIME type\" -\u003e rawHttpRequests.map(_.getHeaderValue(\"Accept\"))\n        .distinct.sorted,\n      \"encoding\" -\u003e rawHttpRequests.map(_.getHeaderValue(\"Accept-Encoding\"))\n        .distinct.sorted,\n      \"charset\" -\u003e rawHttpRequests.map(_.getHeaderValue(\"Accept-Charset\"))\n        .distinct.sorted,\n      \"language\" -\u003e rawHttpRequests.map(_.getHeaderValue(\"Accept-Language\"))\n        .distinct.sorted,\n      \"content type\" -\u003e rawHttpRequests.map(_.getHeaderValue(\"Content-Type\"))\n        .distinct.sorted)\n\n    println(s\"Number of HTTP request :${rawHttpRequests.size}\")\n    uniqueSeqMap.foreach(t \u003d\u003e println(\n      s\"Number of unique ${t._1} : ${t._2.size}${System.lineSeparator}\" +\n        s\"Sequence of unique ${t._1} : ${t._2.mkString(\", \")}\"))\n  }\n\n  /**\n    * Parses raw HTTP requests contain in file\n    *\n    * @param filename name of file contains raw HTTP requests\n    * @param label    type of raw HTTP requests (e.g. normal)\n    * @throws java.io.FileNotFoundException if an I/O error occurs reading the input stream\n    * @throws NoSuchElementException        if HTTP Request is malformed\n    */\n  def parse(filename: String, label: String): Seq[RawHttpRequest] \u003d {\n    val iterator \u003d Source.fromFile(filename).getLines\n    val rawHttpRequests \u003d ListBuffer[RawHttpRequest]()\n\n    var nextId: BigInt \u003d 1\n\n    while (iterator.hasNext) {\n      val lastRawHttpRequest \u003d parse(iterator, nextId, label)\n      rawHttpRequests +\u003d lastRawHttpRequest\n\n      nextId \u003d lastRawHttpRequest.id + 1 +\n        lastRawHttpRequest.headers.size +\n        (if (lastRawHttpRequest.body.value.isEmpty) 2 else 3)\n    }\n\n    rawHttpRequests\n  }\n\n  /**\n    * Parses a raw HTTP request\n    *\n    * @param iterator iterator on strings holding raw HTTP request\n    * @param label    type of raw HTTP request (e.g. normal)\n    * @throws NoSuchElementException if HTTP Request is malformed\n    */\n  def parse(iterator: Iterator[String], lineNumber: BigInt, label: String): RawHttpRequest \u003d {\n\n    // RFC 2616\n    // Request-Line              ; Section 5.1\n    val requestLine \u003d iterator.next\n\n    // RFC 2616\n    // *(( general-header        ; Section 4.5\n    //  | request-header         ; Section 5.3\n    //  | entity-header ) CRLF)  ; Section 7.1\n    // CRLF\n    val requestHeaders \u003d iterator.takeWhile(_.length \u003e 0)\n      .map(parseHeader).toMap\n      .groupBy(_._1)\n      .map(t \u003d\u003e Header(t._1, t._2.values.toSeq)).toSeq\n\n    // RFC 2616\n    // [ message-body ]          ; Section 4.3\n    val messageBody \u003d iterator.takeWhile(_.length \u003e 0).mkString(System.lineSeparator)\n\n    new RawHttpRequest(lineNumber, requestLine, requestHeaders, messageBody, label)\n  }\n\n  /**\n    * Parses a header of a raw HTTP request\n    *\n    * @param header whole line of an header\n    * @return header\u0027s name and header\u0027s value\n    */\n  private def parseHeader(header: String): (String, String) \u003d {\n    val valueSeparator \u003d \u0027:\u0027\n    val index \u003d header.indexOf(valueSeparator)\n    if (index.equals(-1))\n      header -\u003e \"\"\n    else\n      header.substring(0, index) -\u003e header.substring(index + 2, header.length)\n  }\n\n  /**\n    * An only value\n    * Used to avoid repetition of code\n    */\n  sealed trait SingleValue {\n    require(value !\u003d null)\n\n    val value: String\n\n    /**\n      * Represents SingleValue in CSV format with additional attributes\n      *\n      * @return SingleValue in CSV format\n      */\n    def toCsv: String \u003d f\"$length,\" +\n      f\"$printableCharRatio%.2f,\" +\n      f\"$nonPrintableCharRatio%.2f,\" +\n      f\"$letterRatio%.2f,\" +\n      f\"$digitRatio%.2f,\" +\n      f\"$symbolRatio%.2f\"\n\n    /**\n      * Gets length of value\n      *\n      * @return length of value\n      */\n    def length: Int \u003d value.length\n\n    /**\n      * Gets printable characters ratio of value\n      *\n      * @return printable characters ratio of value\n      */\n    def printableCharRatio: Double \u003d Utils.printableCharRatio(Seq(value))\n\n    /**\n      * Gets non printable characters ratio of value\n      *\n      * @return non printable characters ratio of value\n      */\n    def nonPrintableCharRatio: Double \u003d Utils.nonPrintableCharRatio(Seq(value))\n\n    /**\n      * Gets letters ratio of value\n      *\n      * @return letters ratio of value\n      */\n    def letterRatio: Double \u003d Utils.letterRatio(Seq(value))\n\n    /**\n      * Gets digits ratio of value\n      *\n      * @return digits ratio of value\n      */\n    def digitRatio: Double \u003d Utils.digitRatio(Seq(value))\n\n    /**\n      * Gets symbols ratio of value\n      *\n      * @return symbols ratio of value\n      */\n    def symbolRatio: Double \u003d Utils.symbolRatio(Seq(value))\n\n    /**\n      * Represents SingleValue in string format\n      *\n      * @return SingleValue in string format\n      */\n    override def toString: String \u003d s\"$value\"\n  }\n\n  /**\n    * A key corresponding to a list of values\n    * Used to avoid repetition of code\n    */\n  sealed trait KeyMultivalued {\n    require(key !\u003d null \u0026\u0026 key.nonEmpty)\n    require(values !\u003d null)\n\n    val key: String\n    val values: Seq[String]\n\n    /**\n      * Represents KeyMultivalued in CSV format with additional attributes\n      *\n      * @return KeyMultivalued in CSV format\n      */\n    def toCsv: String \u003d f\"$length,\" +\n      f\"$printableCharRatio%.2f,\" +\n      f\"$nonPrintableCharRatio%.2f,\" +\n      f\"$letterRatio%.2f,\" +\n      f\"$digitRatio%.2f,\" +\n      f\"$symbolRatio%.2f\"\n\n    /**\n      * Gets number of values\n      *\n      * @return number of values\n      */\n    def length: Int \u003d values.size\n\n    /**\n      * Gets total printable characters ratio of values\n      *\n      * @return total printable characters ratio of values\n      */\n    def printableCharRatio: Double \u003d Utils.printableCharRatio(values)\n\n    /**\n      * Gets total non printable characters ratio of values\n      *\n      * @return total non printable characters ratio of values\n      */\n    def nonPrintableCharRatio: Double \u003d Utils.nonPrintableCharRatio(values)\n\n    /**\n      * Gets total letters ratio of values\n      *\n      * @return total letters ratio of values\n      */\n    def letterRatio: Double \u003d Utils.letterRatio(values)\n\n    /**\n      * Gets total digits ratio of values\n      *\n      * @return total digits ratio of values\n      */\n    def digitRatio: Double \u003d Utils.digitRatio(values)\n\n    /**\n      * Gets total symbols ratio of values\n      *\n      * @return total symbols ratio of values\n      */\n    def symbolRatio: Double \u003d Utils.symbolRatio(values)\n\n    /**\n      * Represents KeyMultivalued in string format\n      *\n      * @return KeyMultivalued in string format\n      */\n    override def toString: String \u003d s\"$key -\u003e (${values.mkString(\", \")})\"\n  }\n\n  /**\n    * Path of a raw HTTP request\n    *\n    * @param value value of path of a raw HTTP request\n    */\n  case class Path(value: String) extends SingleValue {\n\n    /**\n      * Represents Path in CSV format with additional attributes\n      *\n      * @return Path in CSV format\n      */\n    override def toCsv: String \u003d s\"${super.toCsv},\" +\n      s\"$segmentCount,\" +\n      s\"$isFile,\" +\n      s\"$fileExtension\"\n\n    /**\n      * Counts number of segments in Path value\n      *\n      * @return number of segments in Path value\n      */\n    def segmentCount: Int \u003d value.count(_.equals(Path.Separator))\n\n    /**\n      * Indicates if Path\u0027s target is a file\n      *\n      * @return true if Path\u0027s target is file, false otherwise\n      */\n    def isFile: Int \u003d fileExtension.contains(Path.FileExtensionSeparator).compareTo(false)\n\n    /**\n      * Gets file extension of Path\n      *\n      * @return file extension of Path\n      */\n    def fileExtension: String \u003d {\n      val indexSlash \u003d value.lastIndexOf(Path.Separator)\n      val indexDot \u003d value.lastIndexOf(Path.FileExtensionSeparator)\n      if (indexDot.equals(-1) || indexSlash \u003e indexDot)\n        \"no_file_extension\"\n      else\n        value.substring(value.lastIndexOf(Path.FileExtensionSeparator))\n    }\n  }\n\n  /**\n    * Parameter of a raw HTTP request\n    *\n    * @param key    parameter\u0027s name of a raw HTTP request\n    * @param values parameter\u0027s values of a raw HTTP request\n    */\n  case class Parameter(key: String, values: Seq[String] \u003d Seq[String]()) extends KeyMultivalued\n\n  /**\n    * Header of a raw HTTP request\n    *\n    * @param key    header\u0027s name of a raw HTTP request\n    * @param values header\u0027s values of a raw HTTP request\n    */\n  case class Header(key: String, values: Seq[String] \u003d Seq[String]()) extends KeyMultivalued {\n\n    /**\n      * Represents Header in CSV format with additional attributes\n      *\n      * @return Header in CSV format\n      */\n    override def toCsv: String \u003d s\"${super.toCsv},\" +\n      s\"$isStandard\"\n\n    /**\n      * Indicates Header\u0027s legitimacy\n      *\n      * @return true if Header is legitimate, false otherwise\n      */\n    def isStandard: Int \u003d Header.StandardHeaders.exists(standardHeader \u003d\u003e\n      standardHeader.key.equals(key)).compareTo(false)\n  }\n\n  /**\n    * Body of a raw HTTP request\n    *\n    * @param value value of message body of a raw HTTP request\n    */\n  case class Body(value: String) extends SingleValue {\n\n    /**\n      * Represents Body in CSV format with additional attributes\n      *\n      * @return Body in CSV format\n      */\n    override def toCsv: String \u003d s\"${super.toCsv},\" +\n      s\"$lineNumber,\" +\n      s\"$wordNumber\"\n\n    /**\n      * Counts number of lines in Body value\n      *\n      * @return number of lines in Body value\n      */\n    def lineNumber: Int \u003d value.split(Body.NewLineRegex).length\n\n    /**\n      * Counts number of words in Body value\n      *\n      * @return number of words in Body value\n      */\n    def wordNumber: Int \u003d value.split(Body.WordRegex).length\n  }\n\n  /**\n    * Companion Path of a raw HTTP request\n    */\n  object Path {\n\n    /**\n      * Separator character of a path\n      */\n    val Separator: Char \u003d \u0027/\u0027\n\n    /**\n      * File extension separator character\n      */\n    val FileExtensionSeparator: Char \u003d \u0027.\u0027\n\n    /**\n      * Gets column names of a Path\n      *\n      * @return column names of a Path\n      */\n    def columnNames: Seq[String] \u003d Seq(\"length_path\",\n      \"printable_characters_ratio_path\",\n      \"non_printable_characters_ratio_path\",\n      \"letter_ratio_path\",\n      \"digit_ratio_path\",\n      \"symbol_ratio_path\",\n      \"num_segment\",\n      \"is_file\",\n      \"file_extension\")\n  }\n\n  /**\n    * Companion Parameter of a raw HTTP request\n    */\n  object Parameter {\n\n    /**\n      * Gets column names of a Parameter with parameter\u0027s name in suffix\n      *\n      * @param key parameter\u0027s name\n      * @return column names of a Parameter\n      */\n    def columnNames(key: String): Seq[String] \u003d {\n      val name \u003d key.replaceAll(\"\\\\W\", \"_\").toLowerCase\n      Seq(s\"length_parameter_$name\",\n        s\"printable_characters_ratio_parameter_$name\",\n        s\"non_printable_characters_ratio_parameter_$name\",\n        s\"letter_ratio_parameter_$name\",\n        s\"digit_ratio_parameter_$name\",\n        s\"symbol_ratio_parameter_$name\")\n    }\n  }\n\n  /**\n    * Companion Header of a raw HTTP request\n    */\n  object Header {\n\n    /**\n      * Sequence of standard Headers\n      */\n    val StandardHeaders: Seq[Header] \u003d Seq(\"Accept\", \"Accept-Charset\", \"Accept-Datetime\",\n      \"Accept-Encoding\", \"Accept-Language\", \"Access-Control-Request-Method\",\n      \"Access-Control-Request-Headers\", \"Authorization\", \"Cache-Control\", \"Connection\",\n      \"Content-Length\", \"Content-MD5\", \"Content-Type\", \"Cookie\", \"Date\", \"Expect\", \"From\", \"Host\",\n      \"If-Match\", \"If-Modified-Since\", \"If-None-Match\", \"If-Range\", \"If-Unmodified-Since\",\n      \"Max-Forwards\", \"Origin\", \"Pragma\", \"Proxy-Authorization\", \"Range\", \"Referer\", \"TE\",\n      \"User-Agent\", \"Upgrade\", \"Via\", \"Warning\"\n    ).map(new Header(_))\n\n    /**\n      * Gets column names of standard Header list\n      *\n      * @return column names of all standard Header list\n      */\n    def columnNames: Seq[Seq[String]] \u003d Header.StandardHeaders.map(header \u003d\u003e\n      columnNames(header.key))\n\n    /**\n      * Gets column names of a Header with header\u0027s name in suffix\n      *\n      * @param key header\u0027s name\n      * @return column names of a Header\n      */\n    def columnNames(key: String): Seq[String] \u003d {\n      val name \u003d key.replaceAll(\"\\\\W\", \"_\").toLowerCase\n      Seq(s\"length_header_$name\",\n        s\"printable_characters_ratio_header_$name\",\n        s\"non_printable_characters_ratio_header_$name\",\n        s\"letter_ratio_header_$name\",\n        s\"digit_ratio_header_$name\",\n        s\"symbol_ratio_header_$name\",\n        s\"is_standard_header_$name\")\n    }\n  }\n\n  /**\n    * Companion Body of a raw HTTP request\n    */\n  object Body {\n\n    /**\n      * Regex of new line characters\n      */\n    val NewLineRegex: String \u003d \"\\r\\n|\\r|\\n\"\n\n    /**\n      * Regex of word, i.e. alphanumeric characters plus \"_\"\n      */\n    val WordRegex: String \u003d \"\\\\w+\"\n\n    /**\n      * Gets column names of a Body\n      *\n      * @return column names of a Body\n      */\n    def columnNames: Seq[String] \u003d Seq(\"length_body\",\n      \"printable_characters_ratio_body\",\n      \"non_printable_characters_ratio_body\",\n      \"letter_ratio_body\",\n      \"digit_ratio_body\",\n      \"symbol_ratio_body\",\n      \"num_line\",\n      \"num_word\")\n  }\n\n}\n",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 10:01:36 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\u003cconsole\u003e:27: error: not found: type Header\n                            requestHeaders: Seq[Header],\n                                                ^\n\u003cconsole\u003e:35: error: not found: type URL\n         private val url: URL \u003d try {\n                          ^\n\u003cconsole\u003e:44: error: not found: type Path\n         val path: Path \u003d Path(pathValue)\n                   ^\n\u003cconsole\u003e:45: error: not found: type Parameter\n         val parameters: Seq[Parameter] \u003d parseQuery(query)\n                             ^\n\u003cconsole\u003e:47: error: not found: type Header\n         val headers: Seq[Header] \u003d requestHeaders\n                          ^\n\u003cconsole\u003e:48: error: not found: type Body\n         val body: Body \u003d new Body(messageBody)\n                   ^\n\u003cconsole\u003e:36: error: not found: type URL\n           new URL(requestLineSplit.tail.head)\n               ^\n\u003cconsole\u003e:44: error: not found: value Path\n         val path: Path \u003d Path(pathValue)\n                          ^\n\u003cconsole\u003e:145: error: not found: type Parameter\n         private def parseQuery(query: String): Seq[Parameter] \u003d {\n                                                    ^\n\u003cconsole\u003e:48: error: not found: type Body\n         val body: Body \u003d new Body(messageBody)\n                              ^\n\u003cconsole\u003e:131: error: not found: type Header\n         private def replaceExistingHeaders: Seq[Header] \u003d\n                                                 ^\n\u003cconsole\u003e:90: error: value values is not a member of Any\n             case Some(value) \u003d\u003e value.values.head.takeWhile(_ !\u003d \u0027,\u0027)\n                                       ^\n\u003cconsole\u003e:132: error: not found: value Header\n           Header.StandardHeaders.map { standard \u003d\u003e\n           ^\n\u003cconsole\u003e:148: error: not found: type Parameter\n             Seq[Parameter]()\n                 ^\n\u003cconsole\u003e:153: error: not found: type Parameter\n               .map(t \u003d\u003e new Parameter(t._1, t._2.values.toSeq)).toSeq\n                             ^\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123696584_433108954",
+      "id": "20180720-215456_2130323624",
+      "dateCreated": "Jul 20, 2018 9:54:56 PM",
+      "dateStarted": "Jul 20, 2018 10:01:36 PM",
+      "dateFinished": "Jul 20, 2018 10:01:36 PM",
+      "status": "ERROR",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "/**\n  * Used to detect anomalies in sequence of raw HTTP requests\n  */\nobject AnomalyDetector extends Serializable {\n\n  val SparkSession: SparkSession \u003d sql.SparkSession.builder\n    .master(\"local[*]\")\n    .appName(\"Spark Intelligent WAF\")\n    .getOrCreate\n\n  /**\n    * Pre-process a dataFrame to obtain scaled features\n    *\n    * @param path        path of CSV file\n    * @param columnNames column names of CSV file rows\n    * @return dataFrame with scaled features\n    */\n  def preProcessing(path: String, columnNames: String*): DataFrame \u003d {\n\n    // Gets data in CSV file\n    val dataFrame \u003d SparkSession.read\n      .option(\"inferSchema\", value \u003d true)\n      .option(\"header\", value \u003d false)\n      .csv(path)\n      .toDF(columnNames: _*)\n\n    preProcessing(dataFrame)\n  }\n\n  /**\n    * Pre-process a dataFrame to obtain scaled features\n    *\n    * @param dataFrame data to pre-process\n    * @return dataFrame with scaled features\n    */\n  def preProcessing(dataFrame: DataFrame): DataFrame \u003d {\n\n    // Encodes a string column of labels to a column of label indices\n    val (methodIndex, methodIndexer) \u003d stringIndexer(\"method\")\n    val (fileExtensionIndex, fileExtensionIndexer) \u003d stringIndexer(\"file_extension\")\n    val (contentTypeIndex, contentTypeIndexer) \u003d stringIndexer(\"content_type\")\n\n    // Maps a categorical feature, represented as a label index, to a binary vector\n    val oneHotEncoderEstimator \u003d new OneHotEncoderEstimator()\n      .setInputCols(Array(methodIndex, fileExtensionIndex, contentTypeIndex))\n      .setOutputCols(Array(\"method_vector\", \"file_extension_vector\", \"content_type_vector\"))\n\n    // Original columns, without label / string columns, but with new vector encoded cols\n    val assemblerCols \u003d Set(dataFrame.columns: _*) --\n      Seq(\"label\", \"method\", \"file_extension\", \"content_type\") ++\n      Seq(\"method_vector\", \"file_extension_vector\", \"content_type_vector\")\n\n    // Combines a given list of columns into a single vector column\n    val assembler \u003d new VectorAssembler()\n      .setInputCols(assemblerCols.toArray)\n      .setOutputCol(\"features\")\n\n    // Normalizes each feature to standard deviation and / or zero mean\n    val scaler \u003d new StandardScaler()\n      .setInputCol(\"features\")\n      .setOutputCol(\"scaled_features\")\n\n    val pipeline \u003d new Pipeline().setStages(Array(methodIndexer,\n      fileExtensionIndexer,\n      contentTypeIndexer,\n      oneHotEncoderEstimator,\n      assembler,\n      scaler))\n\n    val scaledData \u003d pipeline.fit(dataFrame).transform(dataFrame)\n\n    scaledData.select(\"id\", \"label\", \"scaled_features\")\n  }\n\n  /**\n    * Gets StringIndexer for a column\n    *\n    * @param inputCol      input column name\n    * @param handleInvalid strategy to handle invalid data\n    * @return StringIndexer for a column\n    */\n  def stringIndexer(inputCol: String, handleInvalid: String \u003d \"skip\"):\n  (String, StringIndexer) \u003d {\n    val outputCol \u003d inputCol + \"_index\"\n    val indexer \u003d new StringIndexer()\n      .setInputCol(inputCol)\n      .setOutputCol(outputCol)\n      .setHandleInvalid(handleInvalid)\n\n    outputCol -\u003e indexer\n  }\n\n  /**\n    * Gets distances between the records and the centroid\n    *\n    * @param model     KMeansModel of training\n    * @param dataFrame data to cluster\n    * @return distances between the records and the centroid\n    */\n  def train(model: KMeansModel, dataFrame: DataFrame): Dataset[Double] \u003d {\n\n    // Makes predictions\n    val predictions \u003d model.transform(dataFrame)\n\n    // Gets threshold to predict anomalies\n    import SparkSession.implicits._\n    predictions.map(distanceToCentroid(model, _))\n  }\n\n  /**\n    * Gets the distance between the record and the centroid\n    *\n    * @param model KMeansModel\n    * @param row   row of a record\n    * @return distance between the record and the centroid\n    */\n  private def distanceToCentroid(model: KMeansModel, row: Row): Double \u003d {\n    val prediction \u003d row.getAs[Int](\"prediction\")\n    val features \u003d row.getAs[Vector](\"scaled_features\")\n    Vectors.sqdist(model.clusterCenters(prediction), features)\n  }\n\n  /**\n    * Evaluates KMeans model with all combinations of parameters and determine best model using\n    *\n    * @param model train validation split model\n    */\n  def showEvaluationResults(model: TrainValidationSplitModel): Unit \u003d {\n\n    // Gets name and value of each parameter\n    val params \u003d model.getEstimatorParamMaps.map(paramMap \u003d\u003e\n      paramMap.toSeq.map(paramPair \u003d\u003e paramPair.param.name -\u003e paramPair.value))\n\n    // Gets metric name and all validation metrics\n    val metricName \u003d model.getEvaluator.asInstanceOf[ClusteringEvaluator].getMetricName\n    val metrics \u003d model.validationMetrics\n\n    // Computes average after each validation metrics\n    val average \u003d for (i \u003c- metrics.indices) yield metrics.take(i + 1).sum / (i + 1).toDouble\n\n    // Rearranges results\n    val results \u003d params.zip(metrics).zip(average).map {\n      case ((paramPair, metric), avg) \u003d\u003e (paramPair, metric, avg)\n    }\n\n    // Show results\n    results.foreach(row \u003d\u003e\n      println(f\"params: {${row._1.map(param \u003d\u003e s\"${param._1}: ${param._2}\").mkString(\", \")}}, \" +\n        f\"$metricName: ${row._2}%.6f, \" +\n        f\"avg: ${row._3}%.6f\"))\n\n    // Gets best result\n    val bestResult \u003d results.maxBy(_._3)\n    println(f\"Best model:\" +\n      f\"{${bestResult._1.map(param \u003d\u003e s\"${param._1}: ${param._2}\").mkString(\", \")}},\" +\n      f\"$metricName: ${bestResult._2}%.6f, \" +\n      f\"avg: ${bestResult._3}%.6f\")\n  }\n\n  /**\n    * Predicts anomalies with a KMeansModel and a threshold\n    *\n    * @param model     KMeansModel of training\n    * @param threshold threshold of training\n    * @param dataFrame data to predict\n    * @return anomalies predicted\n    */\n  def test(model: KMeansModel, threshold: Double, dataFrame: DataFrame): DataFrame \u003d {\n    val predictions \u003d model.transform(dataFrame)\n    predictions.filter(distanceToCentroid(model, _) \u003e\u003d threshold)\n  }\n\n  /**\n    * Evaluates KMeans model with all combinations of parameters and determine best model using\n    *\n    * @param dataFrame     data to cluster\n    * @param kValues       sequence of k values of KMeans\n    * @param maxIterValues sequence of maxIter values of KMeans\n    * @param tolValues     sequence of tol values of KMeans\n    * @return model which contains all models generated\n    */\n  def evaluate(dataFrame: DataFrame,\n               kValues: Seq[Int] \u003d 60 to 270 by 30,\n               maxIterValues: Seq[Int] \u003d 20 to 40 by 10,\n               tolValues: Seq[Double] \u003d Array(1.0e-4, 1.0e-5, 1.0e-6)): TrainValidationSplitModel \u003d {\n    val kMeans \u003d new KMeans()\n      .setSeed(Random.nextLong)\n      .setFeaturesCol(\"scaled_features\")\n\n    val evaluator \u003d new ClusteringEvaluator().setFeaturesCol(\"scaled_features\")\n\n    // Constructs a grid of parameters to search over\n    val paramGrid \u003d new ParamGridBuilder()\n      .addGrid(kMeans.k, kValues)\n      .addGrid(kMeans.maxIter, maxIterValues)\n      .addGrid(kMeans.tol, tolValues)\n      .build()\n\n    val trainValidationSplit \u003d new TrainValidationSplit()\n      .setEstimator(kMeans)\n      .setEvaluator(evaluator)\n      .setEstimatorParamMaps(paramGrid)\n      .setTrainRatio(0.8)\n      .setParallelism(2)\n\n    // Run train validation split, and choose the best set of parameters\n    trainValidationSplit.fit(dataFrame)\n  }\n\n  def validate(dataFrame: DataFrame): Map[String, Double] \u003d {\n    import SparkSession.implicits._\n    val predictionAndLabels \u003d dataFrame.map { row \u003d\u003e\n      val label \u003d if (row.getAs[String](\"label\").equals(\"normal\")) 0.0 else 1.0\n      val prediction \u003d row.getAs[Int](\"prediction\").toDouble\n      label -\u003e prediction\n    }\n\n    val metrics \u003d new MulticlassMetrics(predictionAndLabels.rdd)\n\n    Map[String, Double](\"true negative\" -\u003e metrics.confusionMatrix(0, 0),\n      \"false negative\" -\u003e metrics.confusionMatrix(1, 0),\n      \"false positive\" -\u003e metrics.confusionMatrix(0, 1),\n      \"true positive\" -\u003e metrics.confusionMatrix(1, 1))\n  }\n\n  /**\n    * Saves dataFrame to Parquet file\n    *\n    * @param path      path of Parquet file\n    * @param dataFrame data to save\n    */\n  def saveParquet(path: String, dataFrame: DataFrame): Unit \u003d dataFrame.write\n    .mode(SaveMode.Overwrite)\n    .parquet(path)\n\n  /**\n    * Saves model to path\n    *\n    * @param path  path of model saved\n    * @param model model to save\n    */\n  def saveModel(path: String, model: KMeansModel): Unit \u003d model.write\n    .overwrite()\n    .save(path)\n\n  /**\n    * Saves pipeline to path\n    *\n    * @param path     path of model saved\n    * @param pipeline pipeline to save\n    */\n  def savePipeline(path: String, pipeline: Pipeline): Unit \u003d pipeline.write\n    .overwrite()\n    .save(path)\n}\n",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 10:01:40 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\u003cconsole\u003e:126: error: not found: type OneHotEncoderEstimator\n           val oneHotEncoderEstimator \u003d new OneHotEncoderEstimator()\n                                            ^\n\u003cconsole\u003e:217: error: not found: type ClusteringEvaluator\n           val metricName \u003d model.getEvaluator.asInstanceOf[ClusteringEvaluator].getMetricName\n                                                            ^\n\u003cconsole\u003e:272: error: not found: type ClusteringEvaluator\n           val evaluator \u003d new ClusteringEvaluator().setFeaturesCol(\"scaled_features\")\n                               ^\n\u003cconsole\u003e:286: error: value setParallelism is not a member of org.apache.spark.ml.tuning.TrainValidationSplit\npossible cause: maybe a semicolon is missing before `value setParallelism\u0027?\n             .setParallelism(2)\n              ^\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123641568_-1247530081",
+      "id": "20180720-215401_1142450632",
+      "dateCreated": "Jul 20, 2018 9:54:01 PM",
+      "dateStarted": "Jul 20, 2018 10:01:40 PM",
+      "dateFinished": "Jul 20, 2018 10:01:41 PM",
+      "status": "ERROR",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val resourcesPath \u003d \"/data/csic_2010_http_dataset/\"",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:53:17 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "resourcesPath: String \u003d /data/csic_2010_http_dataset/\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532122799844_-1126930176",
+      "id": "20180720-213959_1710677664",
+      "dateCreated": "Jul 20, 2018 9:39:59 PM",
+      "dateStarted": "Jul 20, 2018 9:53:17 PM",
+      "dateFinished": "Jul 20, 2018 9:53:18 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n### Pre-processes of raw data for anomaly detection",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:45:34 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch3\u003ePre-processes of raw data for anomaly detection\u003c/h3\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1530980523886_-507341836",
+      "id": "20180707-162203_1493127824",
+      "dateCreated": "Jul 7, 2018 4:22:03 PM",
+      "dateStarted": "Jul 20, 2018 9:45:34 PM",
+      "dateFinished": "Jul 20, 2018 9:45:34 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val normalTraining \u003d RawHttpRequest.parse(s\"$resourcesPath/normalTrafficTraining.txt\", \"normal\")\nval normalTest \u003d RawHttpRequest.parse(s\"$resourcesPath/normalTrafficTest.txt\", \"normal\")\nval anomalous \u003d RawHttpRequest.parse(s\"$resourcesPath/anomalousTrafficTest.txt\", \"anomaly\")\nval dataset \u003d normalTraining ++ normalTest ++ anomalous",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:53:20 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\u003cconsole\u003e:27: error: not found: value RawHttpRequest\n       val normalTraining \u003d RawHttpRequest.parse(s\"$resourcesPath/normalTrafficTraining.txt\", \"normal\")\n                            ^\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532122878311_457019749",
+      "id": "20180720-214118_161101489",
+      "dateCreated": "Jul 20, 2018 9:41:18 PM",
+      "dateStarted": "Jul 20, 2018 9:53:20 PM",
+      "dateFinished": "Jul 20, 2018 9:53:20 PM",
+      "status": "ERROR",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Basic statistics",
+      "text": "println(s\"Basic statistics of whole dataset\")\nRawHttpRequest.basicStatistics(dataset)",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:43:02 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": false,
+        "tableHide": true,
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch4\u003eBasic statistics\u003c/h4\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532122907079_-1745470134",
+      "id": "20180720-214147_647216559",
+      "dateCreated": "Jul 20, 2018 9:41:47 PM",
+      "dateStarted": "Jul 20, 2018 9:42:07 PM",
+      "dateFinished": "Jul 20, 2018 9:42:07 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Saves CSV files",
+      "text": "RawHttpRequest.saveCsv(s\"$resourcesPath/train.csv\", normalTraining ++ anomalous)\nRawHttpRequest.saveCsv(s\"$resourcesPath/validate.csv\", normalTest ++ anomalous)\nRawHttpRequest.saveCsv(s\"$resourcesPath/test.csv\", dataset)",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:43:51 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
       },
       "settings": {
         "params": {},
         "forms": {}
       },
       "apps": [],
-      "jobName": "paragraph_1530980523886_-507341836",
-      "id": "20180707-162203_1493127824",
-      "dateCreated": "Jul 7, 2018 4:22:03 PM",
+      "jobName": "paragraph_1532122986856_1143147987",
+      "id": "20180720-214306_1009578153",
+      "dateCreated": "Jul 20, 2018 9:43:06 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Loads datasets",
+      "text": "val columnNames \u003d RawHttpRequest.columnNames\nval training \u003d AnomalyDetector.preProcessing(s\"$resourcesPath/train.csv\", columnNames: _*)\nval validation \u003d AnomalyDetector.preProcessing(s\"$resourcesPath/validate.csv\", columnNames: _*)\nval testing \u003d AnomalyDetector.preProcessing(s\"$resourcesPath/test.csv\", columnNames: _*)",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:46:03 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123040308_1901011375",
+      "id": "20180720-214400_1131534308",
+      "dateCreated": "Jul 20, 2018 9:44:00 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n### Evaluates KMeans model with all combinations of parameters and determine best model using",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:48:44 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch3\u003eEvaluates KMeans model with all combinations of parameters and determine best model using\u003c/h3\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123178909_1053191720",
+      "id": "20180720-214618_1577174329",
+      "dateCreated": "Jul 20, 2018 9:46:18 PM",
+      "dateStarted": "Jul 20, 2018 9:48:44 PM",
+      "dateFinished": "Jul 20, 2018 9:48:44 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val trainModels \u003d AnomalyDetector.evaluate(training)\n\nprintln(\"Evaluation of k-Means models\")\nAnomalyDetector.showEvaluationResults(trainModels)",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:48:03 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "text",
+          "editOnDblClick": false
+        },
+        "editorMode": "ace/mode/text"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1531306718024_-508418657",
+      "id": "20180711-105838_1717324802",
+      "dateCreated": "Jul 11, 2018 10:58:38 AM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n### Trains the model",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:48:37 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch3\u003eTrains the model\u003c/h3\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123284592_826360080",
+      "id": "20180720-214804_1353284572",
+      "dateCreated": "Jul 20, 2018 9:48:04 PM",
+      "dateStarted": "Jul 20, 2018 9:48:37 PM",
+      "dateFinished": "Jul 20, 2018 9:48:37 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val bestModel \u003d trainModels.bestModel.asInstanceOf[KMeansModel]\nval distanceToCentroid \u003d AnomalyDetector.train(bestModel, training)\n\nimport AnomalyDetector.SparkSession.implicits._\nval threshold \u003d distanceToCentroid.orderBy($\"value\".asc).take(36000).last\n\nprintln(f\"Threshold: $threshold%.4f\")",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:53:15 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123283810_1313452187",
+      "id": "20180720-214803_900045854",
+      "dateCreated": "Jul 20, 2018 9:48:03 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n### Validates the model",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:49:13 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch3\u003eValidates the model\u003c/h3\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123342147_343192082",
+      "id": "20180720-214902_511504664",
+      "dateCreated": "Jul 20, 2018 9:49:02 PM",
+      "dateStarted": "Jul 20, 2018 9:49:13 PM",
+      "dateFinished": "Jul 20, 2018 9:49:13 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val validationDataFrame \u003d AnomalyDetector.test(bestModel, threshold, validation)\n\nprintln(\"Intelligent WAF on validate.csv\")\nprintln(s\"Number of anomalies in file: ${\n  validation.filter(row \u003d\u003e\n    row.getAs[String](\"label\")\n      .equals(\"anomaly\"))\n    .count\n}\")\nprintln(s\"Number of anomalies detected: ${validationDataFrame.count}\")\nvalidationDataFrame.show(3)",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:51:57 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123422169_-1913685314",
+      "id": "20180720-215022_1038320350",
+      "dateCreated": "Jul 20, 2018 9:50:22 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Confusion Matrix",
+      "text": "println(\"Confusion Matrix\")\nAnomalyDetector.validate(validationDataFrame).foreach(t \u003d\u003e println(f\"${t._1}: ${t._2}%.2f\"))",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:52:06 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123500392_-2022630549",
+      "id": "20180720-215140_853488118",
+      "dateCreated": "Jul 20, 2018 9:51:40 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n### Tests the model",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:50:12 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala"
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch3\u003eTests the model\u003c/h3\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123353411_-1948556257",
+      "id": "20180720-214913_117255769",
+      "dateCreated": "Jul 20, 2018 9:49:13 PM",
+      "dateStarted": "Jul 20, 2018 9:50:09 PM",
+      "dateFinished": "Jul 20, 2018 9:50:09 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val anomalies \u003d AnomalyDetector.test(bestModel, threshold, testing)\n\nprintln(\"Intelligent WAF on test.csv\")\nprintln(s\"Number of anomalies in file: ${\n  testing.filter(row \u003d\u003e\n    row.getAs[String](\"label\")\n      .equals(\"anomaly\"))\n    .count\n}\")\nprintln(s\"Number of anomalies detected: ${anomalies.count}\")\nanomalies.show(3)",
+      "user": "anonymous",
+      "dateUpdated": "Jul 20, 2018 9:49:55 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1532123363060_-1453753847",
+      "id": "20180720-214923_1061353902",
+      "dateCreated": "Jul 20, 2018 9:49:23 PM",
       "status": "READY",
       "progressUpdateIntervalMs": 500
     }
@@ -54,25 +667,25 @@
   "name": "Intelligent Web Application Firewall",
   "id": "2DJXGZ7DF",
   "angularObjects": {
-    "2DM27M45M:shared_process": [],
-    "2DJH3P7XC:shared_process": [],
-    "2DHDUN7WB:shared_process": [],
-    "2DHAUUWKR:shared_process": [],
-    "2DHJFQVB5:shared_process": [],
-    "2DHDP35M3:shared_process": [],
-    "2DKQDT9RU:shared_process": [],
-    "2DKA1YMFH:shared_process": [],
-    "2DJ995EAE:shared_process": [],
-    "2DMBB58XT:shared_process": [],
-    "2DHAG8E8Q:shared_process": [],
-    "2DM9SXH1F:shared_process": [],
-    "2DHZEB4BR:shared_process": [],
-    "2DKQ1NQ71:shared_process": [],
-    "2DJQ5BS5E:shared_process": [],
-    "2DGUW1UU5:shared_process": [],
-    "2DJR434H7:shared_process": [],
-    "2DM2BHWFQ:shared_process": [],
-    "2DKWCBGZF:shared_process": []
+    "2DJ1F5ET1:shared_process": [],
+    "2DMTKY9F3:shared_process": [],
+    "2DJVT91RN:shared_process": [],
+    "2DNAYESPY:shared_process": [],
+    "2DN29PQ2Z:shared_process": [],
+    "2DJVCJNNH:shared_process": [],
+    "2DJRAY8DY:shared_process": [],
+    "2DJY6TW51:shared_process": [],
+    "2DK1GREQK:shared_process": [],
+    "2DMZGMQH6:shared_process": [],
+    "2DKK3R29T:shared_process": [],
+    "2DM5FM55V:shared_process": [],
+    "2DMPS5Z2T:shared_process": [],
+    "2DJAHXY37:shared_process": [],
+    "2DNS6D4GJ:shared_process": [],
+    "2DJPHR24Q:shared_process": [],
+    "2DMJ2HZAB:shared_process": [],
+    "2DK34UM46:shared_process": [],
+    "2DN2GRG4K:shared_process": []
   },
   "config": {},
   "info": {}
