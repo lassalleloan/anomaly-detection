@@ -105,11 +105,11 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
-    * Gets distances that separate the points from the clusters
+    * Gets distances between the records and the centroid
     *
     * @param model     KMeansModel of training
     * @param dataFrame data to cluster
-    * @return distances that separate the points from the clusters
+    * @return distances between the records and the centroid
     */
   def train(model: KMeansModel, dataFrame: DataFrame): Dataset[Double] = {
 
