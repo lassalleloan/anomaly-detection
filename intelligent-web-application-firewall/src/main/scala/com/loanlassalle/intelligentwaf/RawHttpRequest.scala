@@ -475,7 +475,7 @@ object RawHttpRequest {
       *
       * @return true if Path's target is file, false otherwise
       */
-    def isFile: Int = fileExtension.contains(Path.fileExtensionSeparator).compareTo(false)
+    def isFile: Int = fileExtension.contains(Path.FileExtensionSeparator).compareTo(false)
 
     /**
       * Gets file extension of Path
@@ -484,11 +484,11 @@ object RawHttpRequest {
       */
     def fileExtension: String = {
       val indexSlash = value.lastIndexOf(Path.Separator)
-      val indexDot = value.lastIndexOf(Path.fileExtensionSeparator)
+      val indexDot = value.lastIndexOf(Path.FileExtensionSeparator)
       if (indexDot.equals(-1) || indexSlash > indexDot)
         "no_file_extension"
       else
-        value.substring(value.lastIndexOf(Path.fileExtensionSeparator))
+        value.substring(value.lastIndexOf(Path.FileExtensionSeparator))
     }
   }
 
@@ -569,7 +569,7 @@ object RawHttpRequest {
     /**
       * File extension separator character
       */
-    val fileExtensionSeparator: Char = '.'
+    val FileExtensionSeparator: Char = '.'
 
     /**
       * Gets column names of a Path

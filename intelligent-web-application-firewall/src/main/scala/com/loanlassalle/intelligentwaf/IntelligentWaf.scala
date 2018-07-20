@@ -1,6 +1,7 @@
 package com.loanlassalle.intelligentwaf
 
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.ml.clustering.KMeansModel
 
 object IntelligentWaf {
   def main(args: Array[String]): Unit = {
@@ -16,47 +17,57 @@ object IntelligentWaf {
     /**
       * Raw-processes of raw data for anomaly detection
       */
-//    val dataset = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining.txt", "normal")++
-//      RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest.txt", "anomaly") ++
-//      RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest.txt", "normal")
+//    val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining.txt", "normal")
+//    val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest.txt", "normal")
+//    val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest.txt", "anomaly")
+//    val dataset = normalTraining ++ anomalous ++ normalTest
 //
-//    println(s"Basic statistics of dataset.csv")
+//    println(s"Basic statistics of whole dataset")
 //    RawHttpRequest.basicStatistics(dataset)
-//    RawHttpRequest.saveCsv(s"$resourcesPath/dataset.csv", dataset)
 //    println
+//
+//    RawHttpRequest.saveCsv(s"$resourcesPath/train.csv", normalTraining ++ anomalous)
+//    RawHttpRequest.saveCsv(s"$resourcesPath/validate.csv", anomalous ++ normalTest)
+//    RawHttpRequest.saveCsv(s"$resourcesPath/test.csv", dataset)
 
     val columnNames = RawHttpRequest.columnNames
-    val Array(training, validation, testing) = AnomalyDetector
-      .preProcessing(s"$resourcesPath/dataset.csv", columnNames: _*)
-      .randomSplit(Array(0.7, 0.2, 0.1))
+    val training = AnomalyDetector.preProcessing(s"$resourcesPath/train.csv", columnNames: _*)
+    val validation = AnomalyDetector.preProcessing(s"$resourcesPath/validate.csv", columnNames: _*)
+//    val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test.csv", columnNames: _*)
 
     /**
       * Evaluates KMeans model with all combinations of parameters and determine best model using
       */
-//    AnomalyDetector.showEvaluationResults(AnomalyDetector.evaluate(training))
-//    println
+    val trainModels = AnomalyDetector.evaluate(training)
+    AnomalyDetector.showEvaluationResults(trainModels)
+    println
 
     /**
       * Trains the model
       */
-    val (model, threshold) = AnomalyDetector.train(training)
+    val bestModel = trainModels.bestModel.asInstanceOf[KMeansModel]
+    val distanceToCentroid = AnomalyDetector.train(bestModel, training)
+    val threshold = distanceToCentroid.take(50).last
 
     /**
       * Validates the model
       */
-    val validationDataFrame = AnomalyDetector.test(model, threshold, validation)
-    println(s"Number of rows in file: ${validationDataFrame.count}")
+    val validationDataFrame = AnomalyDetector.test(bestModel, threshold, validation)
+    println(s"Number of anomalies in file: ${validation.filter(row =>
+      row.getAs[String]("label")
+      .equals("anomaly"))
+      .count}")
     println(s"Number of anomalies detected: ${validationDataFrame.count}")
     AnomalyDetector.validate(validationDataFrame).foreach(t => println(f"${t._1}: ${t._2}%.2f"))
 
     /**
       * Tests the model
       */
-//    val anomalies = AnomalyDetector.test(model, threshold, testing)
-//
-//    println("Intelligent WAF on normal_traffic_test.csv")
-//    println(s"Number of rows in file: ${test.count}")
-//    println(s"Number of anomalies detected: ${anomalies.count}")
-//    anomalies.show(3)
+    //    val anomalies = AnomalyDetector.test(model, threshold, testing)
+    //
+    //    println("Intelligent WAF on normal_traffic_test.csv")
+    //    println(s"Number of rows in file: ${test.count}")
+    //    println(s"Number of anomalies detected: ${anomalies.count}")
+    //    anomalies.show(3)
   }
 }
