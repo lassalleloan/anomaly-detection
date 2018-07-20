@@ -43,3 +43,5 @@ digit_ratio_body: continuous, percentage of digits in body
 symbol_ratio_body: continuous, percentage of symbols in body
 num_line: discrete, number of line in body
 num_word: discrete, number of word in body
+
+label: discret, indicates the type of HTTP request
