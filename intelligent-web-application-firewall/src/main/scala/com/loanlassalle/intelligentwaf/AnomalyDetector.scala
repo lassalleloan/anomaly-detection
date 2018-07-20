@@ -6,8 +6,9 @@ import org.apache.spark.ml.evaluation.ClusteringEvaluator
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg.{Vector, Vectors}
 import org.apache.spark.ml.tuning.{ParamGridBuilder, TrainValidationSplit, TrainValidationSplitModel}
+import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.sql
-import org.apache.spark.sql.{DataFrame, Row, SaveMode, SparkSession}
+import org.apache.spark.sql._
 
 import scala.util.Random
 
@@ -20,25 +21,6 @@ object AnomalyDetector extends Serializable {
     .master("local[*]")
     .appName("Spark Intelligent WAF")
     .getOrCreate
-
-  /**
-    * Pre-processes raw data to obtain CSV data format
-    *
-    * @param folderPath path of parent folder of input file
-    * @param inputFile  input file name with extension
-    * @param outputFile output file name with extension CSV
-    * @return Sequence of RawHttpRequests
-    */
-  def rawPreProcessing(folderPath: String, inputFile: String, outputFile: String):
-  Seq[RawHttpRequest] = {
-    val rawHttpRequests = RawHttpRequest.parse(s"$folderPath/$inputFile")
-
-    println(s"Basic statistics of $inputFile")
-    RawHttpRequest.basicStatistics(rawHttpRequests)
-    RawHttpRequest.saveCsv(s"$folderPath/$outputFile", rawHttpRequests)
-
-    rawHttpRequests
-  }
 
   /**
     * Pre-process a dataFrame to obtain scaled features
@@ -79,7 +61,7 @@ object AnomalyDetector extends Serializable {
 
     // Original columns, without label / string columns, but with new vector encoded cols
     val assemblerCols = Set(dataFrame.columns: _*) --
-      Seq("method", "file_extension", "content_type") ++
+      Seq("label", "method", "file_extension", "content_type") ++
       Seq("method_vector", "file_extension_vector", "content_type_vector")
 
     // Combines a given list of columns into a single vector column
@@ -101,7 +83,7 @@ object AnomalyDetector extends Serializable {
 
     val scaledData = pipeline.fit(dataFrame).transform(dataFrame)
 
-    scaledData.select("id", "scaled_features")
+    scaledData.select("id", "label", "scaled_features")
   }
 
   /**
@@ -144,43 +126,6 @@ object AnomalyDetector extends Serializable {
       .last
 
     model -> threshold
-  }
-
-  /**
-    * Evaluates KMeans model with all combinations of parameters and determine best model using
-    *
-    * @param dataFrame     data to cluster
-    * @param kValues       sequence of k values of KMeans
-    * @param maxIterValues sequence of maxIter values of KMeans
-    * @param tolValues     sequence of tol values of KMeans
-    * @return model which contains all models generated
-    */
-  def evaluate(dataFrame: DataFrame,
-               kValues: Seq[Int] = 60 to 270 by 30,
-               maxIterValues: Seq[Int] = 20 to 40 by 10,
-               tolValues: Seq[Double] = Array(1.0e-4, 1.0e-5, 1.0e-6)): TrainValidationSplitModel = {
-    val kMeans = new KMeans()
-      .setSeed(Random.nextLong)
-      .setFeaturesCol("scaled_features")
-
-    val evaluator = new ClusteringEvaluator().setFeaturesCol("scaled_features")
-
-    // Constructs a grid of parameters to search over
-    val paramGrid = new ParamGridBuilder()
-      .addGrid(kMeans.k, kValues)
-      .addGrid(kMeans.maxIter, maxIterValues)
-      .addGrid(kMeans.tol, tolValues)
-      .build()
-
-    val trainValidationSplit = new TrainValidationSplit()
-      .setEstimator(kMeans)
-      .setEvaluator(evaluator)
-      .setEstimatorParamMaps(paramGrid)
-      .setTrainRatio(0.8)
-      .setParallelism(2)
-
-    // Run train validation split, and choose the best set of parameters
-    trainValidationSplit.fit(dataFrame)
   }
 
   /**
@@ -244,6 +189,59 @@ object AnomalyDetector extends Serializable {
     val prediction = row.getAs[Int]("prediction")
     val features = row.getAs[Vector]("scaled_features")
     Vectors.sqdist(model.clusterCenters(prediction), features)
+  }
+
+  /**
+    * Evaluates KMeans model with all combinations of parameters and determine best model using
+    *
+    * @param dataFrame     data to cluster
+    * @param kValues       sequence of k values of KMeans
+    * @param maxIterValues sequence of maxIter values of KMeans
+    * @param tolValues     sequence of tol values of KMeans
+    * @return model which contains all models generated
+    */
+  def evaluate(dataFrame: DataFrame,
+               kValues: Seq[Int] = 60 to 270 by 30,
+               maxIterValues: Seq[Int] = 20 to 40 by 10,
+               tolValues: Seq[Double] = Array(1.0e-4, 1.0e-5, 1.0e-6)): TrainValidationSplitModel = {
+    val kMeans = new KMeans()
+      .setSeed(Random.nextLong)
+      .setFeaturesCol("scaled_features")
+
+    val evaluator = new ClusteringEvaluator().setFeaturesCol("scaled_features")
+
+    // Constructs a grid of parameters to search over
+    val paramGrid = new ParamGridBuilder()
+      .addGrid(kMeans.k, kValues)
+      .addGrid(kMeans.maxIter, maxIterValues)
+      .addGrid(kMeans.tol, tolValues)
+      .build()
+
+    val trainValidationSplit = new TrainValidationSplit()
+      .setEstimator(kMeans)
+      .setEvaluator(evaluator)
+      .setEstimatorParamMaps(paramGrid)
+      .setTrainRatio(0.8)
+      .setParallelism(2)
+
+    // Run train validation split, and choose the best set of parameters
+    trainValidationSplit.fit(dataFrame)
+  }
+
+  def validate(dataFrame: DataFrame): Map[String, Double] = {
+    import AnomalyDetector.SparkSession.implicits._
+    val predictionAndLabels = dataFrame.map { row =>
+      val label = if (row.getAs[String]("label").equals("normal")) 0.0 else 1.0
+      val prediction = row.getAs[Int]("prediction").toDouble
+      label -> prediction
+    }
+
+    val metrics = new MulticlassMetrics(predictionAndLabels.rdd)
+
+    Map[String, Double]("true negative" -> metrics.confusionMatrix(0, 0),
+      "false negative" -> metrics.confusionMatrix(1, 0),
+      "false positive" -> metrics.confusionMatrix(0, 1),
+      "true positive" -> metrics.confusionMatrix(1, 1))
   }
 
   /**
