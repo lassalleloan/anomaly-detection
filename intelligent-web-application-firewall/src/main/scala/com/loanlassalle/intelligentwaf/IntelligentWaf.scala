@@ -17,23 +17,23 @@ object IntelligentWaf {
     /**
       * Raw-processes of raw data for anomaly detection
       */
-//    val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining.txt", "normal")
-//    val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest.txt", "normal")
-//    val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest.txt", "anomaly")
-//    val dataset = normalTraining ++ anomalous ++ normalTest
-//
-//    println(s"Basic statistics of whole dataset")
-//    RawHttpRequest.basicStatistics(dataset)
-//    println
-//
-//    RawHttpRequest.saveCsv(s"$resourcesPath/train.csv", normalTraining ++ anomalous)
-//    RawHttpRequest.saveCsv(s"$resourcesPath/validate.csv", anomalous ++ normalTest)
-//    RawHttpRequest.saveCsv(s"$resourcesPath/test.csv", dataset)
+    val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining.txt", "normal")
+    val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest.txt", "normal")
+    val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest.txt", "anomaly")
+    val dataset = normalTraining ++ anomalous ++ normalTest
+
+    println(s"Basic statistics of whole dataset")
+    RawHttpRequest.basicStatistics(dataset)
+    println
+
+    RawHttpRequest.saveCsv(s"$resourcesPath/train.csv", normalTraining ++ anomalous)
+    RawHttpRequest.saveCsv(s"$resourcesPath/validate.csv", anomalous ++ normalTest)
+    RawHttpRequest.saveCsv(s"$resourcesPath/test.csv", dataset)
 
     val columnNames = RawHttpRequest.columnNames
     val training = AnomalyDetector.preProcessing(s"$resourcesPath/train.csv", columnNames: _*)
     val validation = AnomalyDetector.preProcessing(s"$resourcesPath/validate.csv", columnNames: _*)
-//    val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test.csv", columnNames: _*)
+    val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test.csv", columnNames: _*)
 
     /**
       * Evaluates KMeans model with all combinations of parameters and determine best model using
@@ -53,6 +53,7 @@ object IntelligentWaf {
       * Validates the model
       */
     val validationDataFrame = AnomalyDetector.test(bestModel, threshold, validation)
+    
     println(s"Number of anomalies in file: ${validation.filter(row =>
       row.getAs[String]("label")
       .equals("anomaly"))
@@ -63,11 +64,14 @@ object IntelligentWaf {
     /**
       * Tests the model
       */
-    //    val anomalies = AnomalyDetector.test(model, threshold, testing)
-    //
-    //    println("Intelligent WAF on normal_traffic_test.csv")
-    //    println(s"Number of rows in file: ${test.count}")
-    //    println(s"Number of anomalies detected: ${anomalies.count}")
-    //    anomalies.show(3)
+    val anomalies = AnomalyDetector.test(bestModel, threshold, testing)
+
+    println("Intelligent WAF on test.csv")
+    println(s"Number of anomalies in file: ${testing.filter(row =>
+      row.getAs[String]("label")
+        .equals("anomaly"))
+      .count}")
+    println(s"Number of anomalies detected: ${anomalies.count}")
+    anomalies.show(3)
   }
 }
