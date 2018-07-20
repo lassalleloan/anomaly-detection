@@ -475,16 +475,21 @@ object RawHttpRequest {
       *
       * @return true if Path's target is file, false otherwise
       */
-    def isFile: Int = value.substring(value.lastIndexOf(Path.Separator) + 1)
-      .contains(Path.fileExtensionSeparator)
-      .compareTo(false)
+    def isFile: Int = fileExtension.contains(Path.fileExtensionSeparator).compareTo(false)
 
     /**
       * Gets file extension of Path
       *
       * @return file extension of Path
       */
-    def fileExtension: String = value.substring(value.lastIndexOf(Path.fileExtensionSeparator) + 1)
+    def fileExtension: String = {
+      val indexSlash = value.lastIndexOf(Path.Separator)
+      val indexDot = value.lastIndexOf(Path.fileExtensionSeparator)
+      if (indexDot.equals(-1) || indexSlash > indexDot)
+        "no_file_extension"
+      else
+        value.substring(value.lastIndexOf(Path.fileExtensionSeparator))
+    }
   }
 
   /**
