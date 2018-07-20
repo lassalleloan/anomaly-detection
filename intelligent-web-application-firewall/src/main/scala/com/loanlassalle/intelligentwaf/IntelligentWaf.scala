@@ -39,6 +39,8 @@ object IntelligentWaf {
       * Evaluates KMeans model with all combinations of parameters and determine best model using
       */
     val trainModels = AnomalyDetector.evaluate(training)
+
+    println("Evaluation of k-Means models")
     AnomalyDetector.showEvaluationResults(trainModels)
     println
 
@@ -47,19 +49,29 @@ object IntelligentWaf {
       */
     val bestModel = trainModels.bestModel.asInstanceOf[KMeansModel]
     val distanceToCentroid = AnomalyDetector.train(bestModel, training)
-    val threshold = distanceToCentroid.take(50).last
+
+    import AnomalyDetector.SparkSession.implicits._
+    val threshold = distanceToCentroid.orderBy($"value".asc).take(1000).last
+
+    println(f"Threshold: $threshold%.4f")
+    println
 
     /**
       * Validates the model
       */
     val validationDataFrame = AnomalyDetector.test(bestModel, threshold, validation)
-    
+
+    println("Intelligent WAF on validate.csv")
     println(s"Number of anomalies in file: ${validation.filter(row =>
       row.getAs[String]("label")
       .equals("anomaly"))
       .count}")
     println(s"Number of anomalies detected: ${validationDataFrame.count}")
+    println
+
+    println("Confusion Matrix")
     AnomalyDetector.validate(validationDataFrame).foreach(t => println(f"${t._1}: ${t._2}%.2f"))
+    println
 
     /**
       * Tests the model

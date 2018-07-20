@@ -118,7 +118,7 @@ object AnomalyDetector extends Serializable {
 
     // Gets threshold to predict anomalies
     import SparkSession.implicits._
-    predictions.map(distanceToCentroid(model, _)).orderBy($"value".desc)
+    predictions.map(distanceToCentroid(model, _))
   }
 
   /**
@@ -222,7 +222,7 @@ object AnomalyDetector extends Serializable {
   }
 
   def validate(dataFrame: DataFrame): Map[String, Double] = {
-    import AnomalyDetector.SparkSession.implicits._
+    import SparkSession.implicits._
     val predictionAndLabels = dataFrame.map { row =>
       val label = if (row.getAs[String]("label").equals("normal")) 0.0 else 1.0
       val prediction = row.getAs[Int]("prediction").toDouble
