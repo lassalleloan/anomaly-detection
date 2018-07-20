@@ -105,27 +105,33 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
-    * Gets a KMeansModel and a threshold to predict anomalies
+    * Gets distances that separate the points from the clusters
     *
+    * @param model     KMeansModel of training
     * @param dataFrame data to cluster
-    * @return predictions
+    * @return distances that separate the points from the clusters
     */
-  def train(dataFrame: DataFrame): (KMeansModel, Double) = {
-
-    // Trains a k-Means model
-    val model = evaluate(dataFrame).bestModel.asInstanceOf[KMeansModel]
+  def train(model: KMeansModel, dataFrame: DataFrame): Dataset[Double] = {
 
     // Makes predictions
     val predictions = model.transform(dataFrame)
 
     // Gets threshold to predict anomalies
     import SparkSession.implicits._
-    val threshold = predictions.map(distanceToCentroid(model, _))
-      .orderBy($"value".desc)
-      .take(1000)
-      .last
+    predictions.map(distanceToCentroid(model, _)).orderBy($"value".desc)
+  }
 
-    model -> threshold
+  /**
+    * Gets the distance between the record and the centroid
+    *
+    * @param model KMeansModel
+    * @param row   row of a record
+    * @return distance between the record and the centroid
+    */
+  private def distanceToCentroid(model: KMeansModel, row: Row): Double = {
+    val prediction = row.getAs[Int]("prediction")
+    val features = row.getAs[Vector]("scaled_features")
+    Vectors.sqdist(model.clusterCenters(prediction), features)
   }
 
   /**
@@ -176,19 +182,6 @@ object AnomalyDetector extends Serializable {
   def test(model: KMeansModel, threshold: Double, dataFrame: DataFrame): DataFrame = {
     val predictions = model.transform(dataFrame)
     predictions.filter(distanceToCentroid(model, _) >= threshold)
-  }
-
-  /**
-    * Gets the distance between the record and the centroid
-    *
-    * @param model KMeansModel
-    * @param row   row of a record
-    * @return distance between the record and the centroid
-    */
-  private def distanceToCentroid(model: KMeansModel, row: Row): Double = {
-    val prediction = row.getAs[Int]("prediction")
-    val features = row.getAs[Vector]("scaled_features")
-    Vectors.sqdist(model.clusterCenters(prediction), features)
   }
 
   /**
