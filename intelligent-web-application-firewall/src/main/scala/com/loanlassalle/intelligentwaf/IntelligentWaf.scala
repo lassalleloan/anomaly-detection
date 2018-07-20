@@ -15,19 +15,19 @@ object IntelligentWaf {
     val resourcesPath = getClass.getResource("/csic_2010_http_dataset").getPath
 
     /**
-      * Raw-processes of raw data for anomaly detection
+      * Pre-processes of raw data for anomaly detection
       */
     val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining.txt", "normal")
     val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest.txt", "normal")
     val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest.txt", "anomaly")
-    val dataset = normalTraining ++ anomalous ++ normalTest
+    val dataset = normalTraining ++ normalTest ++ anomalous
 
     println(s"Basic statistics of whole dataset")
     RawHttpRequest.basicStatistics(dataset)
     println
 
     RawHttpRequest.saveCsv(s"$resourcesPath/train.csv", normalTraining ++ anomalous)
-    RawHttpRequest.saveCsv(s"$resourcesPath/validate.csv", anomalous ++ normalTest)
+    RawHttpRequest.saveCsv(s"$resourcesPath/validate.csv", normalTest ++ anomalous)
     RawHttpRequest.saveCsv(s"$resourcesPath/test.csv", dataset)
 
     val columnNames = RawHttpRequest.columnNames
@@ -51,7 +51,7 @@ object IntelligentWaf {
     val distanceToCentroid = AnomalyDetector.train(bestModel, training)
 
     import AnomalyDetector.SparkSession.implicits._
-    val threshold = distanceToCentroid.orderBy($"value".asc).take(1000).last
+    val threshold = distanceToCentroid.orderBy($"value".asc).take(10000).last
 
     println(f"Threshold: $threshold%.4f")
     println
@@ -62,11 +62,14 @@ object IntelligentWaf {
     val validationDataFrame = AnomalyDetector.test(bestModel, threshold, validation)
 
     println("Intelligent WAF on validate.csv")
-    println(s"Number of anomalies in file: ${validation.filter(row =>
-      row.getAs[String]("label")
-      .equals("anomaly"))
-      .count}")
+    println(s"Number of anomalies in file: ${
+      validation.filter(row =>
+        row.getAs[String]("label")
+          .equals("anomaly"))
+        .count
+    }")
     println(s"Number of anomalies detected: ${validationDataFrame.count}")
+    validationDataFrame.show(3)
     println
 
     println("Confusion Matrix")
@@ -79,10 +82,12 @@ object IntelligentWaf {
     val anomalies = AnomalyDetector.test(bestModel, threshold, testing)
 
     println("Intelligent WAF on test.csv")
-    println(s"Number of anomalies in file: ${testing.filter(row =>
-      row.getAs[String]("label")
-        .equals("anomaly"))
-      .count}")
+    println(s"Number of anomalies in file: ${
+      testing.filter(row =>
+        row.getAs[String]("label")
+          .equals("anomaly"))
+        .count
+    }")
     println(s"Number of anomalies detected: ${anomalies.count}")
     anomalies.show(3)
   }
