@@ -18,11 +18,13 @@ import scala.io.Source
   *                                  | entity-header ) CRLF)  ; Section 7.1
   *                                  CRLF
   * @param messageBody    RFC 2616,  [ message-body ]         ; Section 4.3
+  * @param label          type of raw HTTP request (e.g. normal)
   */
 class RawHttpRequest(val id: BigInt,
                      requestLine: String,
                      requestHeaders: Seq[Header],
-                     messageBody: String) {
+                     messageBody: String,
+                     val label: String = "") {
   require(requestLine != null && requestLine.count(_.equals(' ')).equals(2))
   require(requestHeaders != null)
   require(messageBody != null)
@@ -64,7 +66,8 @@ class RawHttpRequest(val id: BigInt,
     f"${replaceExistingHeaders.map(_.toCsv).mkString(",")}," +
     f"$isPersistentConnection," +
     f"${getHeaderValue("Content-Type")}," +
-    f"${body.toCsv}"
+    f"${body.toCsv}," +
+    f"$label"
 
   /**
     * Indicates if the connection is persistent
@@ -193,7 +196,8 @@ object RawHttpRequest {
       "non_standard_headers_ratio") ++
     Header.columnNames.flatten ++
     Seq("is_persistent_connection", "content_type") ++
-    Body.columnNames
+    Body.columnNames ++
+    Seq("label")
 
   /**
     * Gets basic statistics on a list of rawHttpRequests
@@ -231,17 +235,18 @@ object RawHttpRequest {
     * Parses raw HTTP requests contain in file
     *
     * @param filename name of file contains raw HTTP requests
+    * @param label    type of raw HTTP requests (e.g. normal)
     * @throws java.io.FileNotFoundException if an I/O error occurs reading the input stream
     * @throws NoSuchElementException        if HTTP Request is malformed
     */
-  def parse(filename: String): Seq[RawHttpRequest] = {
+  def parse(filename: String, label: String): Seq[RawHttpRequest] = {
     val iterator = Source.fromFile(filename).getLines
     val rawHttpRequests = ListBuffer[RawHttpRequest]()
 
     var nextId: BigInt = 1
 
     while (iterator.hasNext) {
-      val lastRawHttpRequest = parse(iterator, nextId)
+      val lastRawHttpRequest = parse(iterator, nextId, label)
       rawHttpRequests += lastRawHttpRequest
 
       nextId = lastRawHttpRequest.id + 1 +
@@ -256,9 +261,10 @@ object RawHttpRequest {
     * Parses a raw HTTP request
     *
     * @param iterator iterator on strings holding raw HTTP request
+    * @param label    type of raw HTTP request (e.g. normal)
     * @throws NoSuchElementException if HTTP Request is malformed
     */
-  def parse(iterator: Iterator[String], lineNumber: BigInt): RawHttpRequest = {
+  def parse(iterator: Iterator[String], lineNumber: BigInt, label: String): RawHttpRequest = {
 
     // RFC 2616
     // Request-Line              ; Section 5.1
@@ -278,7 +284,7 @@ object RawHttpRequest {
     // [ message-body ]          ; Section 4.3
     val messageBody = iterator.takeWhile(_.length > 0).mkString(System.lineSeparator)
 
-    new RawHttpRequest(lineNumber, requestLine, requestHeaders, messageBody)
+    new RawHttpRequest(lineNumber, requestLine, requestHeaders, messageBody, label)
   }
 
   /**
