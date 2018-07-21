@@ -25,9 +25,10 @@ class RawHttpRequest(val id: BigInt,
                      requestHeaders: Seq[Header],
                      messageBody: String,
                      val label: String = "") {
-  require(requestLine != null && requestLine.count(_.equals(' ')).equals(2))
-  require(requestHeaders != null)
-  require(messageBody != null)
+  require(requestLine != null && requestLine.count(_.equals(' ')).equals(2),
+    "requestLine must be not null and must contain two spaces")
+  require(requestHeaders != null, "requestHeaders must be not null")
+  require(messageBody != null, "messageBody must be not null")
 
   private val requestLineSplit: Array[String] = requestLine.split(" ")
   private val url: URL = try {
@@ -307,7 +308,7 @@ object RawHttpRequest {
     * Used to avoid repetition of code
     */
   sealed trait SingleValue {
-    require(value != null)
+    require(value != null, "Value must be not null")
 
     val value: String
 
@@ -378,8 +379,8 @@ object RawHttpRequest {
     * Used to avoid repetition of code
     */
   sealed trait KeyMultivalued {
-    require(key != null && key.nonEmpty)
-    require(values != null)
+    require(key != null && key.nonEmpty, "Key must be not null and non empty")
+    require(values != null, "Sequence of values must be not null")
 
     val key: String
     val values: Seq[String]
