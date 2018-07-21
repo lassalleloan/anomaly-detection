@@ -30,6 +30,7 @@ object AnomalyDetector extends Serializable {
     * @return dataFrame with scaled features
     */
   def preProcessing(path: String, columnNames: String*): DataFrame = {
+    require(path.endsWith(".csv"), "file must be a CSV file")
 
     // Gets data in CSV file
     val dataFrame = SparkSession.read
@@ -48,21 +49,23 @@ object AnomalyDetector extends Serializable {
     * @return dataFrame with scaled features
     */
   def preProcessing(dataFrame: DataFrame): DataFrame = {
+    val inputCols = Seq("method", "file_extension", "content_type")
 
-    // Encodes a string column of labels to a column of label indices
-    val (methodIndex, methodIndexer) = stringIndexer("method")
-    val (fileExtensionIndex, fileExtensionIndexer) = stringIndexer("file_extension")
-    val (contentTypeIndex, contentTypeIndexer) = stringIndexer("content_type")
+    require(inputCols.toSet.subsetOf(dataFrame.columns.toSet),
+      s"dataFrame must contain $inputCols columns")
+
+    // Encodes label string columns into label index columns
+    val indexers = stringIndexers(inputCols)
 
     // Maps a categorical feature, represented as a label index, to a binary vector
     val oneHotEncoderEstimator = new OneHotEncoderEstimator()
-      .setInputCols(Array(methodIndex, fileExtensionIndex, contentTypeIndex))
-      .setOutputCols(Array("method_vector", "file_extension_vector", "content_type_vector"))
+      .setInputCols(indexers.keySet.toArray)
+      .setOutputCols(inputCols.map(_ + "_vector").toArray)
 
     // Original columns, without label / string columns, but with new vector encoded cols
     val assemblerCols = Set(dataFrame.columns: _*) --
-      Seq("label", "method", "file_extension", "content_type") ++
-      Seq("method_vector", "file_extension_vector", "content_type_vector")
+      Seq("label") -- inputCols ++
+      oneHotEncoderEstimator.getOutputCols
 
     // Combines a given list of columns into a single vector column
     val assembler = new VectorAssembler()
@@ -71,19 +74,28 @@ object AnomalyDetector extends Serializable {
 
     // Normalizes each feature to standard deviation and / or zero mean
     val scaler = new StandardScaler()
-      .setInputCol("features")
+      .setWithMean(true)
+      .setInputCol(assembler.getOutputCol)
       .setOutputCol("scaled_features")
 
-    val pipeline = new Pipeline().setStages(Array(methodIndexer,
-      fileExtensionIndexer,
-      contentTypeIndexer,
-      oneHotEncoderEstimator,
-      assembler,
-      scaler))
+    val pipeline = new Pipeline().setStages(indexers.values.toArray ++
+      Array(oneHotEncoderEstimator, assembler, scaler))
 
     val scaledData = pipeline.fit(dataFrame).transform(dataFrame)
 
     scaledData.select("id", "label", "scaled_features")
+  }
+
+  /**
+    * Gets sequence of StringIndexers for columns
+    *
+    * @param inputCols     input column name
+    * @param handleInvalid strategy to handle invalid data
+    * @return map of StringIndexers for columns
+    */
+  def stringIndexers(inputCols: Seq[String], handleInvalid: String = "skip"):
+  Map[String, StringIndexer] = {
+    (for (inputCol <- inputCols) yield stringIndexer(inputCol)).toMap
   }
 
   /**
@@ -105,18 +117,18 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
-    * Gets distances between the records and the centroid
+    * Gets distances between the records and centroids
     *
     * @param model     KMeansModel of training
     * @param dataFrame data to cluster
-    * @return distances between the records and the centroid
+    * @return distances between the records and centroids
     */
   def train(model: KMeansModel, dataFrame: DataFrame): Dataset[Double] = {
 
     // Makes predictions
     val predictions = model.transform(dataFrame)
 
-    // Gets threshold to predict anomalies
+    // Gets distances between the records and centroids
     import SparkSession.implicits._
     predictions.map(distanceToCentroid(model, _))
   }
@@ -201,7 +213,7 @@ object AnomalyDetector extends Serializable {
       .setSeed(Random.nextLong)
       .setFeaturesCol("scaled_features")
 
-    val evaluator = new ClusteringEvaluator().setFeaturesCol("scaled_features")
+    val evaluator = new ClusteringEvaluator().setFeaturesCol(kMeans.getFeaturesCol)
 
     // Constructs a grid of parameters to search over
     val paramGrid = new ParamGridBuilder()
@@ -221,10 +233,16 @@ object AnomalyDetector extends Serializable {
     trainValidationSplit.fit(dataFrame)
   }
 
+  /**
+    * Validates predictions with a confusion matrix
+    *
+    * @param dataFrame data predicted
+    * @return confusion matrix
+    */
   def validate(dataFrame: DataFrame): Map[String, Double] = {
     import SparkSession.implicits._
     val predictionAndLabels = dataFrame.map { row =>
-      val label = if (row.getAs[String]("label").equals("normal")) 0.0 else 1.0
+      val label = row.getAs[String]("label").equals("normal").compareTo(false).toDouble
       val prediction = row.getAs[Int]("prediction").toDouble
       label -> prediction
     }
