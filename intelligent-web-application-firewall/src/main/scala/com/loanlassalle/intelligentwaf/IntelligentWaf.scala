@@ -17,9 +17,10 @@ object IntelligentWaf {
     /**
       * Pre-processes of raw data for anomaly detection
       */
-    val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining.txt", "normal")
-    val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest.txt", "normal")
-    val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest.txt", "anomaly")
+    val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining-20.txt",
+      "normal")
+    val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest-20.txt", "normal")
+    val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest-20.txt", "anomaly")
     val dataset = normalTraining ++ normalTest ++ anomalous
 
     println(s"Basic statistics of whole dataset")
@@ -38,7 +39,7 @@ object IntelligentWaf {
     /**
       * Evaluates KMeans model with all combinations of parameters and determine best model using
       */
-    val trainModels = AnomalyDetector.evaluate(training)
+    val trainModels = AnomalyDetector.evaluate(training, Array(10), Array(20), Array(1.0E-4))
 
     println("Evaluation of k-Means models")
     AnomalyDetector.showEvaluationResults(trainModels)
@@ -51,7 +52,7 @@ object IntelligentWaf {
     val distanceToCentroid = AnomalyDetector.train(bestModel, training)
 
     import AnomalyDetector.SparkSession.implicits._
-    val threshold = distanceToCentroid.orderBy($"value".asc).take(10000).last
+    val threshold = distanceToCentroid.orderBy($"value".desc).take(23).last
 
     println(f"Threshold: $threshold%.4f")
     println
