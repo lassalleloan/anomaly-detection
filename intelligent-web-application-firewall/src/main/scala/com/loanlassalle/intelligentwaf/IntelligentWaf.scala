@@ -21,65 +21,45 @@ object IntelligentWaf {
       "normal")
     val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest-20.txt", "normal")
     val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest-20.txt", "anomaly")
-    val dataset = normalTraining ++ normalTest ++ anomalous
 
-    println(s"Basic statistics of whole dataset")
-    RawHttpRequest.basicStatistics(dataset)
+    println(s"Basic statistics of all dataset")
+    RawHttpRequest.basicStatistics(normalTraining ++ normalTest ++ anomalous)
     println
 
     RawHttpRequest.saveCsv(s"$resourcesPath/train.csv", normalTraining ++ anomalous)
-    RawHttpRequest.saveCsv(s"$resourcesPath/validate.csv", normalTest ++ anomalous)
-    RawHttpRequest.saveCsv(s"$resourcesPath/test.csv", dataset)
+    RawHttpRequest.saveCsv(s"$resourcesPath/test.csv", normalTest ++ anomalous)
 
     val columnNames = RawHttpRequest.columnNames
     val training = AnomalyDetector.preProcessing(s"$resourcesPath/train.csv", columnNames: _*)
-    val validation = AnomalyDetector.preProcessing(s"$resourcesPath/validate.csv", columnNames: _*)
     val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test.csv", columnNames: _*)
 
     /**
-      * Evaluates KMeans model with all combinations of parameters and determine best model using
+      * Tunes KMeans model with all combinations of parameters and determine the best
+      * model
+      * using
       */
-    val trainModels = AnomalyDetector.evaluate(training, Array(10), Array(20), Array(1.0E-4))
+    val trainModels = AnomalyDetector.tune(training,
+      10 to 20,
+      20 to 60 by 5,
+      Array(1.0E-4, 1.0E-5, 1.0E-6))
 
-    println("Evaluation of k-Means models")
-    AnomalyDetector.showEvaluationResults(trainModels)
+    println("Tuning of k-Means model")
+    AnomalyDetector.showTuningResults(trainModels)
     println
 
     /**
-      * Trains the model
+      * Evaluates the model
       */
+    println("Evaluation of k-Means model")
     val bestModel = trainModels.bestModel.asInstanceOf[KMeansModel]
-    val distanceToCentroid = AnomalyDetector.train(bestModel, training)
-
-    import AnomalyDetector.SparkSession.implicits._
-    val threshold = distanceToCentroid.orderBy($"value".desc).take(23).last
-
-    println(f"Threshold: $threshold%.4f")
-    println
-
-    /**
-      * Validates the model
-      */
-    val validationDataFrame = AnomalyDetector.test(bestModel, threshold, validation)
-
-    println("Intelligent WAF on validate.csv")
-    println(s"Number of anomalies in file: ${
-      validation.filter(row =>
-        row.getAs[String]("label")
-          .equals("anomaly"))
-        .count
-    }")
-    println(s"Number of anomalies detected: ${validationDataFrame.count}")
-    validationDataFrame.show(3)
-    println
-
-    println("Confusion Matrix")
-    AnomalyDetector.validate(validationDataFrame).foreach(t => println(f"${t._1}: ${t._2}%.2f"))
+    val metrics = AnomalyDetector.evaluate(bestModel, testing)
+    AnomalyDetector.showEvaluationResults(metrics)
     println
 
     /**
       * Tests the model
       */
+    val threshold = 4.0
     val anomalies = AnomalyDetector.test(bestModel, threshold, testing)
 
     println("Intelligent WAF on test.csv")

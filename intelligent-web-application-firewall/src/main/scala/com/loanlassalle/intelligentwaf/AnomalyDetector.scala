@@ -6,7 +6,7 @@ import org.apache.spark.ml.evaluation.ClusteringEvaluator
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.linalg.{Vector, Vectors}
 import org.apache.spark.ml.tuning.{ParamGridBuilder, TrainValidationSplit, TrainValidationSplitModel}
-import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.mllib.evaluation.BinaryClassificationMetrics
 import org.apache.spark.sql
 import org.apache.spark.sql._
 
@@ -117,41 +117,12 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
-    * Gets distances between the records and centroids
+    * Displays the tuning of KMeans model with all combinations of parameters and determine best
+    * model using
     *
-    * @param model     KMeansModel of training
-    * @param dataFrame data to cluster
-    * @return distances between the records and centroids
+    * @param model KMeans model to display the tuning
     */
-  def train(model: KMeansModel, dataFrame: DataFrame): Dataset[Double] = {
-
-    // Makes predictions
-    val predictions = model.transform(dataFrame)
-
-    // Gets distances between the records and centroids
-    import SparkSession.implicits._
-    predictions.map(distanceToCentroid(model, _))
-  }
-
-  /**
-    * Gets the distance between the record and the centroid
-    *
-    * @param model KMeansModel
-    * @param row   row of a record
-    * @return distance between the record and the centroid
-    */
-  private def distanceToCentroid(model: KMeansModel, row: Row): Double = {
-    val prediction = row.getAs[Int]("prediction")
-    val features = row.getAs[Vector]("scaled_features")
-    Vectors.sqdist(model.clusterCenters(prediction), features)
-  }
-
-  /**
-    * Evaluates KMeans model with all combinations of parameters and determine best model using
-    *
-    * @param model train validation split model
-    */
-  def showEvaluationResults(model: TrainValidationSplitModel): Unit = {
+  def showTuningResults(model: TrainValidationSplitModel): Unit = {
 
     // Gets name and value of each parameter
     val params = model.getEstimatorParamMaps.map(paramMap =>
@@ -197,18 +168,31 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
-    * Evaluates KMeans model with all combinations of parameters and determine best model using
+    * Gets the distance between the record and the centroid
     *
-    * @param dataFrame     data to cluster
+    * @param model KMeansModel
+    * @param row   row of a record
+    * @return distance between the record and the centroid
+    */
+  private def distanceToCentroid(model: KMeansModel, row: Row): Double = {
+    val prediction = row.getAs[Int]("prediction")
+    val features = row.getAs[Vector]("scaled_features")
+    Vectors.sqdist(model.clusterCenters(prediction), features)
+  }
+
+  /**
+    * Tunes KMeans model with all combinations of parameters and determine best model using
+    *
+    * @param dataFrame     data to tune
     * @param kValues       sequence of k values of KMeans
     * @param maxIterValues sequence of maxIter values of KMeans
     * @param tolValues     sequence of tol values of KMeans
-    * @return model which contains all models generated
+    * @return best KMeans model
     */
-  def evaluate(dataFrame: DataFrame,
-               kValues: Seq[Int] = 60 to 270 by 30,
-               maxIterValues: Seq[Int] = 20 to 40 by 10,
-               tolValues: Seq[Double] = Array(1.0e-4, 1.0e-5, 1.0e-6)): TrainValidationSplitModel = {
+  def tune(dataFrame: DataFrame,
+           kValues: Seq[Int] = Array(2),
+           maxIterValues: Seq[Int] = Array(20),
+           tolValues: Seq[Double] = Array(1.0e-4)): TrainValidationSplitModel = {
     val kMeans = new KMeans()
       .setSeed(Random.nextLong)
       .setFeaturesCol("scaled_features")
@@ -234,25 +218,65 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
-    * Validates predictions with a confusion matrix
+    * Evaluates metrics of predictions with a binary classification metrics
     *
-    * @param dataFrame data predicted
-    * @return confusion matrix
+    * @param model     KMeansModel of training
+    * @param dataFrame data to evaluate
+    * @return a binary classification metrics
     */
-  def validate(dataFrame: DataFrame): Map[String, Double] = {
+  def evaluate(model: KMeansModel, dataFrame: DataFrame): BinaryClassificationMetrics = {
+    val predictions = model.transform(dataFrame)
+
     import SparkSession.implicits._
-    val predictionAndLabels = dataFrame.map { row =>
+    val predictionsAndLabels = predictions.map { row =>
       val label = row.getAs[String]("label").equals("normal").compareTo(false).toDouble
       val prediction = row.getAs[Int]("prediction").toDouble
-      label -> prediction
+      prediction -> label
     }
 
-    val metrics = new MulticlassMetrics(predictionAndLabels.rdd)
+    new BinaryClassificationMetrics(predictionsAndLabels.rdd)
+  }
 
-    Map[String, Double]("true negative" -> metrics.confusionMatrix(0, 0),
-      "false negative" -> metrics.confusionMatrix(1, 0),
-      "false positive" -> metrics.confusionMatrix(0, 1),
-      "true positive" -> metrics.confusionMatrix(1, 1))
+  /**
+    * Displays results of the evaluation of metrics
+    *
+    * @param metrics metrics evaluated
+    */
+  def showEvaluationResults(metrics: BinaryClassificationMetrics): Unit = {
+
+    // Precision by threshold
+    metrics.precisionByThreshold.foreach { case (t, p) =>
+      println(f"Threshold: $t%.4f, Precision: $p%.4f")
+    }
+
+    // Recall by threshold
+    metrics.recallByThreshold.foreach { case (t, r) =>
+      println(f"Threshold: $t%.4f, Recall: $r%.4f")
+    }
+
+    // Precision-Recall Curve
+    val PRC = metrics.pr
+
+    // F-measure
+    metrics.fMeasureByThreshold.foreach { case (t, f) =>
+      println(f"Threshold: $t%.4f, F-score: $f%.4f, Beta = 1")
+    }
+
+    val beta = 0.5
+    metrics.fMeasureByThreshold(beta).foreach { case (t, f) =>
+      println(f"Threshold: $t%.4f, F-score: $f%.4f, Beta = $beta")
+    }
+
+    // AUPRC
+    val auPRC = metrics.areaUnderPR
+    println(f"Area under precision-recall curve = $auPRC%.4f")
+
+    // ROC Curve
+    val roc = metrics.roc
+
+    // AUROC
+    val auROC = metrics.areaUnderROC
+    println(f"Area under ROC = $auROC%.4f")
   }
 
   /**
