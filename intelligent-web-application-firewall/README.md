@@ -48,15 +48,14 @@ with `--master yarn`.
 To pass configuration options on the command line, use the `--conf` option, e.g.
 `--conf spark.serializer=org.apache.spark.serializer.KryoSerializer`.
 
-## Apache Zeppelin
+## Worksheets
 
-Alternatively, you can also use [Apache Zeppelin](http://zeppelin-project.org/) for testing purpose. To run Zeppelin container in Docker, you can execute the script `run-zeppelin-docker.sh`. For more detail, please read the script [here](https://github.com/lassalleloan/anomaly-detection/blob/master/zeppelin/run-zeppelin-docker.sh).
+Alternatively, you can also use `test.sc` and `evaluate.sc` worksheets to run the application 
+with smaller datasets.
 
-After running Zeppelin container, you can access the notebook in the browser: 
-
-	localhost:8080
-
-Download my notebook [here](https://github.com/lassalleloan/anomaly-detection/blob/master/zeppelin/notebooks/2DG9YNM1P/note.json) and use **import note** option to import the notebook.
+To run them correctly, you need to set some parameters in IntelliJ IDEA, at `Languages & Frameworks` section, `Scala`, `Worksheet` tab :
+ * uncheck `Run worksheet in the compiler process`
+ * check `Use "eclispe comptability" mode`
 
 ## Refences
 
