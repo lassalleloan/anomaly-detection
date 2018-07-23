@@ -120,8 +120,7 @@ object AnomalyDetector extends Serializable {
     *
     * @param model KMeans model to display the tuning
     */
-  def showTuningResults(model: TrainValidationSplitModel, onlyBestModel: Boolean = true)
-  : Unit = {
+  def showTuningResults(model: TrainValidationSplitModel, onlyBestModel: Boolean = true): Unit = {
 
     // Gets name and value of each parameter
     val params = model.getEstimatorParamMaps.map(paramMap =>
