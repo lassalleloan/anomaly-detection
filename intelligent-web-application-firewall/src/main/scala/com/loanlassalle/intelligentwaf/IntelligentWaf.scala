@@ -17,9 +17,12 @@ object IntelligentWaf {
     /**
       * Pre-processes of raw data for anomaly detection
       */
-    val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining.txt", "normal")
-    val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest.txt", "normal")
-    val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest.txt", "anomaly")
+    val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining.txt",
+      "normal")
+    val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest.txt",
+      "normal")
+    val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest.txt",
+      "anomaly")
 
     println(s"Basic statistics of all dataset")
     RawHttpRequest.basicStatistics(normalTraining ++ normalTest ++ anomalous)
