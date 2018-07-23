@@ -32,12 +32,23 @@ The model used is [k-means](http://spark.apache.org/docs/latest/ml-clustering.ht
 is trained on **normal** dataset and **anomaly** dataset.
 
 To obtain the best k-means model, several parameters must be tested in order to find the most 
-suitable ones, an `Evaluator`, `ParamGrid` and `TrainValidationSplit` with allows it.
+suitable ones, an [Estimator](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.ml.Estimator),
+[Evaluator](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.ml.Estimator), 
+[ParamGridBuilder](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.ml.tuning.ParamGridBuilder) 
+and 
+[TrainValidationSplit](https://spark.apache.org/docs/latest/api/scala/index.html#org.apache.spark.ml.tuning.TrainValidationSplit) 
+with allows it.
+
+To have more details about this, you can read this 
+[guide](http://spark.apache.org/docs/latest/ml-tuning.html)
 
 ## Evaluation metrics
 
 After training of the model, you can obtain some metrics that allow you to choose the good value for
 threshold.
+
+To have more details about this, you can read this 
+[guide](https://spark.apache.org/docs/latest/mllib-evaluation-metrics.html)
 
 ## Testing
 
