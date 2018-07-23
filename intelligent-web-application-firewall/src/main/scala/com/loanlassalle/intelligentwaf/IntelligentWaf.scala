@@ -17,10 +17,9 @@ object IntelligentWaf {
     /**
       * Pre-processes of raw data for anomaly detection
       */
-    val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining-20.txt",
-      "normal")
-    val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest-20.txt", "normal")
-    val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest-20.txt", "anomaly")
+    val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining.txt", "normal")
+    val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest.txt", "normal")
+    val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest.txt", "anomaly")
 
     println(s"Basic statistics of all dataset")
     RawHttpRequest.basicStatistics(normalTraining ++ normalTest ++ anomalous)
@@ -39,8 +38,8 @@ object IntelligentWaf {
       * using
       */
     val trainModels = AnomalyDetector.tune(training,
-      10 to 20,
-      20 to 60 by 5,
+      30 to 270 by 30,
+      20 to 60 by 10,
       Array(1.0E-4, 1.0E-5, 1.0E-6))
 
     println("Tuning of k-Means model")
@@ -70,6 +69,12 @@ object IntelligentWaf {
         .count
     }")
     println(s"Number of anomalies detected: ${anomalies.count}")
+    println(s"Number of actual anomalies detected: ${
+      anomalies.filter(row =>
+        row.getAs[String]("label")
+          .equals("anomaly"))
+        .count
+    }")
     anomalies.show(3)
   }
 }

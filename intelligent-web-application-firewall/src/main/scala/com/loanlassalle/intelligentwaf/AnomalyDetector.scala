@@ -10,8 +10,6 @@ import org.apache.spark.mllib.evaluation.BinaryClassificationMetrics
 import org.apache.spark.sql
 import org.apache.spark.sql._
 
-import scala.util.Random
-
 /**
   * Used to detect anomalies in sequence of raw HTTP requests
   */
@@ -62,9 +60,9 @@ object AnomalyDetector extends Serializable {
       .setInputCols(indexers.keySet.toArray)
       .setOutputCols(inputCols.map(_ + "_vector").toArray)
 
-    // Original columns, without label / string columns, but with new vector encoded cols
+    // Original columns, without id and label / string columns, but with new vector encoded cols
     val assemblerCols = Set(dataFrame.columns: _*) --
-      Seq("label") -- inputCols ++
+      Seq("id", "label") -- inputCols ++
       oneHotEncoderEstimator.getOutputCols
 
     // Combines a given list of columns into a single vector column
@@ -122,7 +120,8 @@ object AnomalyDetector extends Serializable {
     *
     * @param model KMeans model to display the tuning
     */
-  def showTuningResults(model: TrainValidationSplitModel): Unit = {
+  def showTuningResults(model: TrainValidationSplitModel, onlyBestModel: Boolean = true)
+  : Unit = {
 
     // Gets name and value of each parameter
     val params = model.getEstimatorParamMaps.map(paramMap =>
@@ -141,10 +140,12 @@ object AnomalyDetector extends Serializable {
     }
 
     // Show results
-    results.foreach(row =>
-      println(f"params: {${row._1.map(param => s"${param._1}: ${param._2}").mkString(", ")}}, " +
-        f"$metricName: ${row._2}%.6f, " +
-        f"avg: ${row._3}%.6f"))
+    if (!onlyBestModel) {
+      results.foreach(row =>
+        println(f"params: {${row._1.map(param => s"${param._1}: ${param._2}").mkString(", ")}}, " +
+          f"$metricName: ${row._2}%.6f, " +
+          f"avg: ${row._3}%.6f"))
+    }
 
     // Gets best result
     val bestResult = results.maxBy(_._3)
@@ -194,7 +195,6 @@ object AnomalyDetector extends Serializable {
            maxIterValues: Seq[Int] = Array(20),
            tolValues: Seq[Double] = Array(1.0e-4)): TrainValidationSplitModel = {
     val kMeans = new KMeans()
-      .setSeed(Random.nextLong)
       .setFeaturesCol("scaled_features")
 
     val evaluator = new ClusteringEvaluator().setFeaturesCol(kMeans.getFeaturesCol)
