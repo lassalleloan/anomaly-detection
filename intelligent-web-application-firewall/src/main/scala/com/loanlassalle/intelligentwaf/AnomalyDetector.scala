@@ -1,5 +1,7 @@
 package com.loanlassalle.intelligentwaf
 
+import java.io.{File, PrintWriter}
+
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
 import org.apache.spark.ml.evaluation.ClusteringEvaluator
@@ -115,12 +117,35 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
-    * Displays the tuning of KMeans model with all combinations of parameters and determine best
-    * model using
+    * Displays the tuning of KMeans model with all combinations of parameters
     *
-    * @param model KMeans model to display the tuning
+    * @param model         KMeans model to display the tuning
+    * @param onlyBestModel indicates displays only best model
     */
   def showTuningResults(model: TrainValidationSplitModel, onlyBestModel: Boolean = true): Unit = {
+
+    // Gets results
+    val results = tuningResults(model)
+
+    // Show results
+    if (!onlyBestModel) {
+      results.foreach(row =>
+        println(row.map(param => f"${param._1}: ${param._2}%.6f").mkString(", ")))
+    }
+
+    // Gets best result
+    val bestResult = results.maxBy(row => row.filter(param => param._1.equals("avg")).map(_._2).head)
+    println(f"Best model:" +
+      f"${bestResult.map(param => f"${param._1}: ${param._2}%.6f").mkString(", ")}")
+  }
+
+  /**
+    * Gets tuning results of KMeans model with all combinations of parameters
+    *
+    * @param model KMeans model to display the tuning
+    * @return tuning results of KMeans model with all combinations of parameters
+    */
+  private def tuningResults(model: TrainValidationSplitModel): Seq[Seq[(String, Double)]] = {
 
     // Gets name and value of each parameter
     val params = model.getEstimatorParamMaps.map(paramMap =>
@@ -135,23 +160,64 @@ object AnomalyDetector extends Serializable {
 
     // Rearranges results
     val results = params.zip(metrics).zip(average).map {
-      case ((paramPair, metric), avg) => (paramPair, metric, avg)
+      case ((paramPair, metric), avg) =>
+        paramPair.map(param => param._1 -> (param._2 match {
+          case i: Int => i
+          case f: Float => f
+          case d: Double => d
+        })) ++
+          Seq(metricName -> metric, "avg" -> avg)
     }
 
-    // Show results
-    if (!onlyBestModel) {
-      results.foreach(row =>
-        println(f"params: {${row._1.map(param => s"${param._1}: ${param._2}").mkString(", ")}}, " +
-          f"$metricName: ${row._2}%.6f, " +
-          f"avg: ${row._3}%.6f"))
-    }
+    results
+  }
+
+  /**
+    * Saves some tuning results to a CSV file
+    *
+    * @param path  path of CSV file
+    * @param model KMeans model to display the tuning
+    */
+  def saveTuningResults(path: String, model: TrainValidationSplitModel): Unit = {
+
+    // Gets results
+    val results = tuningResults(model)
 
     // Gets best result
-    val bestResult = results.maxBy(_._3)
-    println(f"Best model:" +
-      f"{${bestResult._1.map(param => s"${param._1}: ${param._2}").mkString(", ")}}," +
-      f"$metricName: ${bestResult._2}%.6f, " +
-      f"avg: ${bestResult._3}%.6f")
+    val bestResult = results.maxBy(row => row.filter(param => param._1.equals("avg")).map(_._2).head)
+    val bestResultTol = bestResult.filter(param => param._1.equals("tol")).head
+
+    val resultsWithBestTol = results.filter(row => row.contains(bestResultTol))
+
+    // Gets list of parameters applied to the model during tuning
+    val kList = resultsWithBestTol
+      .flatMap(row => row.filter(param => param._1.equals("k")).map(_._2))
+      .distinct
+    val maxIterList = resultsWithBestTol
+      .flatMap(row => row.filter(param => param._1.equals("maxIter")).map(_._2))
+      .distinct
+
+    val writer = new PrintWriter(new File(path))
+
+    // Writes list of k values as column names
+    writer.write(f",${kList.mkString(",")}\n")
+
+    maxIterList.foreach { maxIter =>
+
+      // Writes maxIter values as row names
+      writer.write(f"$maxIter,")
+
+      // Writes all metrics as a function of k and maxIter
+      writer.write(kList.flatMap { k =>
+        resultsWithBestTol
+          .filter(row => row.contains(("maxIter", maxIter)) && row.contains(("k", k)))
+          .map(row => row.filter(param => param._1.equals("avg")).map(_._2).head)
+      }.mkString(","))
+
+      writer.write(f"\n")
+    }
+
+    writer.close()
   }
 
   /**
@@ -181,7 +247,7 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
-    * Tunes KMeans model with all combinations of parameters and determine best model using
+    * Tunes KMeans model with all combinations of parameters and determine best model
     *
     * @param dataFrame     data to tune
     * @param kValues       sequence of k values of KMeans
