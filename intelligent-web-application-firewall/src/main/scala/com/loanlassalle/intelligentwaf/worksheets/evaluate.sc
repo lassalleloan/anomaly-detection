@@ -42,6 +42,7 @@ val trainModels = AnomalyDetector.tune(training,
 
 println("Tuning of k-Means model")
 AnomalyDetector.showTuningResults(trainModels)
+AnomalyDetector.saveTuningResults(s"$resourcesPath/results_tuning.csv", trainModels)
 println
 
 /**
