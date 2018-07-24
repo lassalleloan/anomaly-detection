@@ -213,10 +213,9 @@ object RawHttpRequest {
     Seq("label")
 
   /**
-    * Gets basic statistics on a list of rawHttpRequests
+    * Displays basic statistics on a list of rawHttpRequests
     *
     * @param rawHttpRequests list of rawHttpRequests
-    * @return basic statistics on a list of rawHttpRequests
     */
   def basicStatistics(rawHttpRequests: Seq[RawHttpRequest]): Unit = {
     val uniqueSeqMap = Map("path" -> rawHttpRequests.map(_.path.value)
@@ -249,6 +248,7 @@ object RawHttpRequest {
     *
     * @param filename name of file contains raw HTTP requests
     * @param label    type of raw HTTP requests (e.g. normal)
+    * @return sequence of raw HTTP requests parsed
     * @throws java.io.FileNotFoundException if an I/O error occurs reading the input stream
     * @throws NoSuchElementException        if HTTP Request is malformed
     */
@@ -273,8 +273,10 @@ object RawHttpRequest {
   /**
     * Parses a raw HTTP request
     *
-    * @param iterator iterator on strings holding raw HTTP request
-    * @param label    type of raw HTTP request (e.g. normal)
+    * @param iterator   iterator on strings holding raw HTTP request
+    * @param lineNumber line number of raw HTTP request
+    * @param label      type of raw HTTP request (e.g. normal)
+    * @return a raw HTTP request parsed
     * @throws NoSuchElementException if HTTP Request is malformed
     */
   def parse(iterator: Iterator[String], lineNumber: BigInt, label: String): RawHttpRequest = {
