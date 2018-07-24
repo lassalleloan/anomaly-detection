@@ -47,6 +47,7 @@ object IntelligentWaf {
 
     println("Tuning of k-Means model")
     AnomalyDetector.showTuningResults(trainModels)
+    AnomalyDetector.saveTuningResults(s"$resourcesPath/results_tuning.csv", trainModels)
     println
 
     /**
@@ -56,6 +57,7 @@ object IntelligentWaf {
     val bestModel = trainModels.bestModel.asInstanceOf[KMeansModel]
     val metrics = AnomalyDetector.evaluate(bestModel, testing)
     AnomalyDetector.showEvaluationResults(metrics)
+    AnomalyDetector.saveEvaluationResults(s"$resourcesPath/results_evaluation.csv", metrics)
     println
 
     /**

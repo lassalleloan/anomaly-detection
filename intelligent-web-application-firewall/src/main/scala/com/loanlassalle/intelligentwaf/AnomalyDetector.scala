@@ -1,7 +1,6 @@
 package com.loanlassalle.intelligentwaf
 
-import java.io.{File, PrintWriter}
-
+import com.loanlassalle.intelligentwaf.util.Utils
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.clustering.{KMeans, KMeansModel}
 import org.apache.spark.ml.evaluation.ClusteringEvaluator
@@ -130,13 +129,13 @@ object AnomalyDetector extends Serializable {
     // Show results
     if (!onlyBestModel) {
       results.foreach(row =>
-        println(row.map(param => f"${param._1}: ${param._2}%.6f").mkString(", ")))
+        println(row.map(param => f"${param._1}: ${param._2}%.4f").mkString(", ")))
     }
 
     // Gets best result
     val bestResult = results.maxBy(row => row.filter(param => param._1.equals("avg")).map(_._2).head)
     println(f"Best model:" +
-      f"${bestResult.map(param => f"${param._1}: ${param._2}%.6f").mkString(", ")}")
+      f"${bestResult.map(param => f"${param._1}: ${param._2}%.4f").mkString(", ")}")
   }
 
   /**
@@ -161,11 +160,12 @@ object AnomalyDetector extends Serializable {
     // Rearranges results
     val results = params.zip(metrics).zip(average).map {
       case ((paramPair, metric), avg) =>
-        paramPair.map(param => param._1 -> (param._2 match {
-          case i: Int => i
-          case f: Float => f
-          case d: Double => d
-        })) ++
+        paramPair.map(param =>
+          param._1 -> (param._2 match {
+            case int: Int => int
+            case float: Float => float
+            case double: Double => double
+          })) ++
           Seq(metricName -> metric, "avg" -> avg)
     }
 
@@ -176,7 +176,7 @@ object AnomalyDetector extends Serializable {
     * Saves some tuning results to a CSV file
     *
     * @param path  path of CSV file
-    * @param model KMeans model to display the tuning
+    * @param model train validations split model to get tuning results
     */
   def saveTuningResults(path: String, model: TrainValidationSplitModel): Unit = {
 
@@ -184,40 +184,38 @@ object AnomalyDetector extends Serializable {
     val results = tuningResults(model)
 
     // Gets best result
-    val bestResult = results.maxBy(row => row.filter(param => param._1.equals("avg")).map(_._2).head)
-    val bestResultTol = bestResult.filter(param => param._1.equals("tol")).head
+    val bestResult = results.maxBy(row =>
+      row.filter { case (name, _) => name.equals("avg") }
+        .map { case (_, value) => value }.head)
 
+    val bestResultTol = bestResult.filter(param => param._1.equals("tol")).head
     val resultsWithBestTol = results.filter(row => row.contains(bestResultTol))
 
     // Gets list of parameters applied to the model during tuning
     val kList = resultsWithBestTol
-      .flatMap(row => row.filter(param => param._1.equals("k")).map(_._2))
+      .flatMap(row => row.filter { case (name, _) => name.equals("k") }
+        .map { case (_, value) => value })
       .distinct
+
     val maxIterList = resultsWithBestTol
-      .flatMap(row => row.filter(param => param._1.equals("maxIter")).map(_._2))
+      .flatMap(row => row.filter { case (name, _) => name.equals("maxIter") }
+        .map { case (_, value) => value })
       .distinct
 
-    val writer = new PrintWriter(new File(path))
+    // Writes list of k values as column names and
+    // maxIter values as row names
+    val data = s",${kList.mkString(",")}${System.lineSeparator}" +
+      maxIterList.map { maxIter =>
+        f"$maxIter," +
+          kList.flatMap { k =>
+            resultsWithBestTol
+              .filter(row => row.contains(("maxIter", maxIter)) && row.contains(("k", k)))
+              .map(row => row.filter(param => param._1.equals("avg")).map(_._2).head)
+          }.mkString(",") +
+          System.lineSeparator
+      }.mkString
 
-    // Writes list of k values as column names
-    writer.write(f",${kList.mkString(",")}\n")
-
-    maxIterList.foreach { maxIter =>
-
-      // Writes maxIter values as row names
-      writer.write(f"$maxIter,")
-
-      // Writes all metrics as a function of k and maxIter
-      writer.write(kList.flatMap { k =>
-        resultsWithBestTol
-          .filter(row => row.contains(("maxIter", maxIter)) && row.contains(("k", k)))
-          .map(row => row.filter(param => param._1.equals("avg")).map(_._2).head)
-      }.mkString(","))
-
-      writer.write(f"\n")
-    }
-
-    writer.close()
+    Utils.write(path, data)
   }
 
   /**
@@ -303,45 +301,86 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
+    * Saves some evaluation results to a CSV file
+    *
+    * @param path    path of CSV file
+    * @param metrics metrics to save
+    */
+  def saveEvaluationResults(path: String, metrics: BinaryClassificationMetrics): Unit = {
+
+    // Collects precision values and recall values by threshold
+    val precisionAndRecall = metrics.precisionByThreshold.zip(metrics.recallByThreshold).map {
+      case ((threshold, precision), (_, recall)) => (threshold, precision, recall)
+    }.collect
+
+    // Collects F-measure values by beta and threshold
+    val fMetrics = metrics.fMeasureByThreshold(0.5).collect.map {
+      case (threshold, f0) => (0.5, threshold, f0)
+    } ++
+      metrics.fMeasureByThreshold(1.0).collect.map {
+        case (threshold, f1) => (1.0, threshold, f1)
+      } ++
+      metrics.fMeasureByThreshold(2.0).collect.map {
+        case (threshold, f2) => (2.0, threshold, f2)
+      } ++
+      metrics.fMeasureByThreshold(3.0).collect.map {
+        case (threshold, f3) => (3.0, threshold, f3)
+      }
+
+    // Gets list of all threshold values
+    val thresholdList = precisionAndRecall.map { case (threshold, _, _) => threshold }
+
+    val thresholdData = s"threshold,precision,recall${System.lineSeparator}" +
+      precisionAndRecall.map {
+        case (threshold, precision, recall) =>
+          s"$threshold,$precision,$recall"
+      }.mkString(System.lineSeparator)
+
+    val fData = s",${thresholdList.mkString(",")}${System.lineSeparator}" +
+      List(0.5, 1, 2, 3).map { beta =>
+        s"$beta," +
+          thresholdList.flatMap { threshold =>
+            fMetrics.filter {
+              case (b, t, _) => beta.equals(b) && threshold.equals(t)
+            }.map {
+              case (_, _, f) => f
+            }
+          }.mkString(",") +
+          System.lineSeparator
+      }.mkString
+
+    Utils.write(path, thresholdData + System.lineSeparator * 8 + fData)
+  }
+
+  /**
     * Displays results of the evaluation of metrics
     *
     * @param metrics metrics evaluated
     */
   def showEvaluationResults(metrics: BinaryClassificationMetrics): Unit = {
 
-    // Precision by threshold
-    metrics.precisionByThreshold.foreach { case (t, p) =>
-      println(f"Threshold: $t%.4f, Precision: $p%.4f")
+    // Collects precision values and recall values by threshold
+    val precisionAndRecall = metrics.precisionByThreshold.zip(metrics.recallByThreshold).map {
+      case ((threshold, precision), (_, recall)) => (threshold, precision, recall)
     }
 
-    // Recall by threshold
-    metrics.recallByThreshold.foreach { case (t, r) =>
-      println(f"Threshold: $t%.4f, Recall: $r%.4f")
+    // Displays precision values and recall values by threshold
+    println("Precision and recall")
+    precisionAndRecall.foreach {
+      case (threshold, precision, recall) =>
+        println(f"threshold: $threshold%.4f, precision: $precision%.4f, recall: $recall%.4f")
     }
 
-    // Precision-Recall Curve
-    val PRC = metrics.pr
+    println
 
-    // F-measure
-    metrics.fMeasureByThreshold.foreach { case (t, f) =>
-      println(f"Threshold: $t%.4f, F-score: $f%.4f, Beta = 1")
-    }
-
-    val beta = 0.5
-    metrics.fMeasureByThreshold(beta).foreach { case (t, f) =>
-      println(f"Threshold: $t%.4f, F-score: $f%.4f, Beta = $beta")
-    }
-
-    // AUPRC
-    val auPRC = metrics.areaUnderPR
-    println(f"Area under precision-recall curve = $auPRC%.4f")
-
-    // ROC Curve
-    val roc = metrics.roc
-
-    // AUROC
-    val auROC = metrics.areaUnderROC
-    println(f"Area under ROC = $auROC%.4f")
+    // Displays F-measure
+    println("F-measures")
+    val betas = List(0.5, 1, 2, 3)
+    betas.foreach(beta =>
+      metrics.fMeasureByThreshold(beta).foreach { case (t, f) =>
+        println(f"threshold: $t%.4f, beta : $beta%.4f, f-score: $f%.4f")
+      }
+    )
   }
 
   /**
