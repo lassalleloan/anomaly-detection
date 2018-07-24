@@ -172,9 +172,21 @@ class RawHttpRequest(val id: BigInt,
 }
 
 object RawHttpRequest {
+
+  /**
+    * Saves sequence of RawHttpRequests to a CSV file
+    *
+    * @param path            path of CSV file
+    * @param rawHttpRequests sequence of RawHttpRequests
+    */
   def saveCsv(path: String, rawHttpRequests: Seq[RawHttpRequest]): Unit =
     Utils.write(path, rawHttpRequests.map(_.toCsv).mkString(System.lineSeparator))
 
+  /**
+    * Saves column names to a text file
+    *
+    * @param path path of text file
+    */
   def saveColumnNames(path: String): Unit =
     Utils.write(path, columnNames.mkString(System.lineSeparator))
 
