@@ -7,6 +7,13 @@ import java.nio.file.{Files, Paths}
   * A toolbox for basic statistics
   */
 object Utils {
+  
+  /**
+    * Writes data to path of a file
+    *
+    * @param path path of a file
+    * @param data data to write
+    */
   def write(path: String, data: String): Unit =
     Files.write(Paths.get(path), data.getBytes(StandardCharsets.UTF_8))
 
@@ -34,6 +41,18 @@ object Utils {
       str.length
     else
       str.length - printableCharCount(str)
+
+  /**
+    * Counts number of printable characters in a string
+    *
+    * @param str string
+    * @return number of printable characters in a string
+    */
+  def printableCharCount(str: String): Int =
+    if (str.isEmpty)
+      str.length
+    else
+      "[ -~]".r.findAllIn(str).length
 
   /**
     * Gets total printable characters ratio of sequence of string
@@ -74,16 +93,17 @@ object Utils {
       printableCharCount(str) - letterCount(str) - digitCount(str)
 
   /**
-    * Counts number of printable characters in a string
+    * Gets total letters ratio of sequence of string
     *
-    * @param str string
-    * @return number of printable characters in a string
+    * @param seq sequence of string
+    * @return total letters ratio of sequence of string
     */
-  def printableCharCount(str: String): Int =
-    if (str.isEmpty)
-      str.length
+  def letterRatio(seq: Seq[String]): Double =
+    if (seq.isEmpty || seq.forall(_.isEmpty))
+      0
     else
-      "[ -~]".r.findAllIn(str).length
+      seq.foldLeft(0)((sum, value) => sum + letterCount(value)) /
+        seq.foldLeft(0.0)((sum, value) => sum + value.length)
 
   /**
     * Counts number of letters in a string
@@ -96,19 +116,6 @@ object Utils {
       str.length
     else
       str.count(_.isLetter)
-
-  /**
-    * Gets total letters ratio of sequence of string
-    *
-    * @param seq sequence of string
-    * @return total letters ratio of sequence of string
-    */
-  def letterRatio(seq: Seq[String]): Double =
-    if (seq.isEmpty || seq.forall(_.isEmpty))
-      0
-    else
-      seq.foldLeft(0)((sum, value) => sum + letterCount(value)) /
-        seq.foldLeft(0.0)((sum, value) => sum + value.length)
 
   /**
     * Gets total digits ratio of sequence of string
