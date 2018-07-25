@@ -41,13 +41,10 @@ object IntelligentWaf {
       * using
       */
     println("Tuning of k-Means model")
-
     val trainModels = AnomalyDetector.tune(training,
       30 to 270 by 30,
       20 to 60 by 10,
       Array(1.0E-4, 1.0E-5, 1.0E-6))
-
-    AnomalyDetector.showTuningResults(trainModels)
     AnomalyDetector.saveTuningResults(s"$resourcesPath/results_tuning.csv", trainModels)
     println
 
@@ -57,9 +54,15 @@ object IntelligentWaf {
     println("Evaluation of k-Means model")
     val bestModel = trainModels.bestModel.asInstanceOf[KMeansModel]
     val metrics = AnomalyDetector.evaluate(bestModel, testing)
-    AnomalyDetector.showEvaluationResults(metrics)
     AnomalyDetector.saveEvaluationResults(s"$resourcesPath/results_evaluation.csv", metrics)
     println
+
+    /**
+      * Gets all distances to centroids for normal distribution
+      */
+    println("Distances to centroids")
+    AnomalyDetector.saveDistancesToCentroids(s"$resourcesPath/results_distances.csv", bestModel,
+      testing)
 
     /**
       * Tests the model

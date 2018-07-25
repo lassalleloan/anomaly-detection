@@ -232,6 +232,29 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
+    * Displays all distances to all centroids
+    *
+    * @param model     KMeansModel
+    * @param dataFrame data to display distances to centroids
+    */
+  def showDistancesToCentroids(model: KMeansModel, dataFrame: DataFrame): Unit = {
+    distancesToCentroids(model, dataFrame).foreach(println(_))
+  }
+
+  /**
+    * Gets all distances to all centroids
+    *
+    * @param model     KMeansModel
+    * @param dataFrame data to get distances to centroids
+    * @return all distances to all centroids
+    */
+  private def distancesToCentroids(model: KMeansModel, dataFrame: DataFrame): Dataset[Double] = {
+    import SparkSession.implicits._
+    val predictions = model.transform(dataFrame)
+    predictions.map(distanceToCentroid(model, _))
+  }
+
+  /**
     * Gets the distance between the record and the centroid
     *
     * @param model KMeansModel
@@ -242,6 +265,17 @@ object AnomalyDetector extends Serializable {
     val prediction = row.getAs[Int]("prediction")
     val features = row.getAs[Vector]("scaled_features")
     Vectors.sqdist(model.clusterCenters(prediction), features)
+  }
+
+  /**
+    * Saves all distances to all centroids
+    *
+    * @param path      path of CSV file
+    * @param model     KMeansModel
+    * @param dataFrame data to save all distances to all centroids
+    */
+  def saveDistancesToCentroids(path: String, model: KMeansModel, dataFrame: DataFrame): Unit = {
+    Utils.write(path, distancesToCentroids(model, dataFrame).collect.mkString(System.lineSeparator))
   }
 
   /**

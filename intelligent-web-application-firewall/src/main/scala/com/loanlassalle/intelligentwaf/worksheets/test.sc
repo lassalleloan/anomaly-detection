@@ -36,6 +36,12 @@ val tol = 1.0E-4
 val bestModel = new KMeans().setK(k).setMaxIter(maxIter).setTol(tol).setFeaturesCol ("scaled_features").fit(training)
 
 /**
+  * Gets all distances to centroids for normal distribution
+  */
+AnomalyDetector.saveDistancesToCentroids(s"$resourcesPath/results_distances.csv", bestModel,
+  testing)
+
+/**
   * Tests the model
   */
 val threshold = 3.0

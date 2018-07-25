@@ -51,6 +51,5 @@ println
 println("Evaluation of k-Means model")
 val bestModel = trainModels.bestModel.asInstanceOf[KMeansModel]
 val metrics = AnomalyDetector.evaluate(bestModel, testing)
-AnomalyDetector.showEvaluationResults(metrics)
 AnomalyDetector.saveEvaluationResults(s"$resourcesPath/results_evaluation.csv", metrics)
 println
