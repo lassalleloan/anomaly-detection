@@ -72,7 +72,7 @@ object IntelligentWaf {
       */
     println("Intelligent WAF on test.csv")
 
-    val threshold = 4.0
+    val threshold = 1.0
     val anomalies = AnomalyDetector.test(bestModel, threshold, testing)
 
     println(s"Number of anomalies in file: ${
