@@ -35,6 +35,7 @@ object IntelligentWaf {
     val columnNames = RawHttpRequest.columnNames
     val training = AnomalyDetector.preProcessing(s"$resourcesPath/train.csv", columnNames: _*)
     val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test.csv", columnNames: _*)
+    println
 
     /**
       * Tunes KMeans model with all combinations of parameters and determine the best
@@ -64,6 +65,7 @@ object IntelligentWaf {
     println("Distances to centroids")
     AnomalyDetector.saveDistancesToCentroids(s"$resourcesPath/results_distances.csv", bestModel,
       testing)
+    println
 
     /**
       * Tests the model
