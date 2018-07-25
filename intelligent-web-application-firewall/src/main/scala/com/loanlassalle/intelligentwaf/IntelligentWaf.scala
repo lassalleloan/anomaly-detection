@@ -15,7 +15,7 @@ object IntelligentWaf {
     val resourcesPath = getClass.getResource("/csic_2010_http_dataset").getPath
 
     /**
-      * Pre-processes of raw data for anomaly detection
+      * Pre-processes of raw data
       */
     val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining.txt",
       "normal")
@@ -31,6 +31,7 @@ object IntelligentWaf {
     RawHttpRequest.saveCsv(s"$resourcesPath/train.csv", normalTraining ++ anomalous)
     RawHttpRequest.saveCsv(s"$resourcesPath/test.csv", normalTest ++ anomalous)
 
+    println("Pre-processes of raw data")
     val columnNames = RawHttpRequest.columnNames
     val training = AnomalyDetector.preProcessing(s"$resourcesPath/train.csv", columnNames: _*)
     val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test.csv", columnNames: _*)
