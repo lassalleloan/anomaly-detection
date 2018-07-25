@@ -40,12 +40,13 @@ object IntelligentWaf {
       * model
       * using
       */
+    println("Tuning of k-Means model")
+
     val trainModels = AnomalyDetector.tune(training,
       30 to 270 by 30,
       20 to 60 by 10,
       Array(1.0E-4, 1.0E-5, 1.0E-6))
 
-    println("Tuning of k-Means model")
     AnomalyDetector.showTuningResults(trainModels)
     AnomalyDetector.saveTuningResults(s"$resourcesPath/results_tuning.csv", trainModels)
     println
@@ -63,10 +64,11 @@ object IntelligentWaf {
     /**
       * Tests the model
       */
+    println("Intelligent WAF on test.csv")
+
     val threshold = 4.0
     val anomalies = AnomalyDetector.test(bestModel, threshold, testing)
 
-    println("Intelligent WAF on test.csv")
     println(s"Number of anomalies in file: ${
       testing.filter(row =>
         row.getAs[String]("label")
