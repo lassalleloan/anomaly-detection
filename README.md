@@ -1,7 +1,7 @@
 # Anomaly Detection with Spark Machine Learning
 
 Author: Loan Lassalle
----
+***
 
 To protect data from cyber-attacks from multiple sources such as businesses or individuals, anomaly detection is an effective and efficient way to deal with them. The machine learning is a structured and optimal method to quickly examine a large volume of data. Accurate data analysis improves responsiveness and quality of response to project needs and objectives.
 
