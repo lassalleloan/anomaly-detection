@@ -3,7 +3,7 @@
     {
       "text": "%md\n# Anomaly Detection\n#### author: Loan Lassalle",
       "user": "anonymous",
-      "dateUpdated": "Jun 26, 2018 8:23:15 PM",
+      "dateUpdated": "Sep 10, 2018 12:08:34 PM",
       "config": {
         "colWidth": 12.0,
         "enabled": true,
@@ -33,26 +33,28 @@
       "jobName": "paragraph_1529998491856_-2147449320",
       "id": "20180626-073451_426975331",
       "dateCreated": "Jun 26, 2018 7:34:51 AM",
-      "dateStarted": "Jun 26, 2018 8:23:15 PM",
-      "dateFinished": "Jun 26, 2018 8:23:15 PM",
+      "dateStarted": "Sep 10, 2018 12:08:35 PM",
+      "dateFinished": "Sep 10, 2018 12:08:35 PM",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500
     },
     {
       "text": "%md\n### Loading data",
       "user": "anonymous",
-      "dateUpdated": "Jun 26, 2018 8:23:15 PM",
+      "dateUpdated": "Sep 10, 2018 12:08:35 PM",
       "config": {
         "colWidth": 12.0,
         "enabled": true,
         "results": {},
         "editorSetting": {
           "language": "markdown",
-          "editOnDblClick": true
+          "editOnDblClick": true,
+          "completionSupport": false
         },
         "editorMode": "ace/mode/markdown",
         "editorHide": true,
-        "tableHide": false
+        "tableHide": false,
+        "fontSize": 9.0
       },
       "settings": {
         "params": {},
@@ -71,26 +73,29 @@
       "jobName": "paragraph_1530016014058_1331767191",
       "id": "20180626-122654_1915337111",
       "dateCreated": "Jun 26, 2018 12:26:54 PM",
-      "dateStarted": "Jun 26, 2018 8:23:15 PM",
-      "dateFinished": "Jun 26, 2018 8:23:15 PM",
+      "dateStarted": "Sep 10, 2018 12:08:35 PM",
+      "dateFinished": "Sep 10, 2018 12:08:35 PM",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500
     },
     {
       "text": "val dataWithoutHeader \u003d spark\n  .read\n  .option(\"inferSchema\", true)\n  .option(\"header\", false)\n  .csv(\"/data/kddcup_1999_network_dataset/kddcup.data_10_percent_corrected\")\n\ndataWithoutHeader.count()",
       "user": "anonymous",
-      "dateUpdated": "Jul 25, 2018 12:05:46 AM",
+      "dateUpdated": "Sep 8, 2018 5:41:13 PM",
       "config": {
         "colWidth": 12.0,
         "enabled": true,
         "results": {},
         "editorSetting": {
           "language": "text",
-          "editOnDblClick": false
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
         },
         "editorMode": "ace/mode/text",
         "editorHide": false,
-        "tableHide": false
+        "tableHide": false,
+        "fontSize": 9.0
       },
       "settings": {
         "params": {},
@@ -101,7 +106,7 @@
         "msg": [
           {
             "type": "TEXT",
-            "data": "dataWithoutHeader: org.apache.spark.sql.DataFrame \u003d [_c0: int, _c1: string ... 40 more fields]\nres3: Long \u003d 494021\n"
+            "data": "dataWithoutHeader: org.apache.spark.sql.DataFrame \u003d [_c0: int, _c1: string ... 40 more fields]\nres1: Long \u003d 494021\n"
           }
         ]
       },
@@ -109,8 +114,8 @@
       "jobName": "paragraph_1529998521426_-1879633437",
       "id": "20180626-073521_364480744",
       "dateCreated": "Jun 26, 2018 7:35:21 AM",
-      "dateStarted": "Jul 25, 2018 12:05:47 AM",
-      "dateFinished": "Jul 25, 2018 12:05:50 AM",
+      "dateStarted": "Sep 8, 2018 5:41:14 PM",
+      "dateFinished": "Sep 8, 2018 5:41:45 PM",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500
     },
@@ -231,7 +236,7 @@
     {
       "text": "import scala.util.Random\nimport org.apache.spark.ml.{Pipeline, PipelineModel}\nimport org.apache.spark.ml.clustering.{KMeans, KMeansModel}\nimport org.apache.spark.ml.feature.{OneHotEncoder, StringIndexer, StandardScaler, VectorAssembler}\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\nimport org.apache.spark.sql.DataFrame",
       "user": "anonymous",
-      "dateUpdated": "Jul 25, 2018 12:05:56 AM",
+      "dateUpdated": "Sep 10, 2018 2:18:25 PM",
       "config": {
         "colWidth": 12.0,
         "enabled": true,
@@ -241,8 +246,8 @@
           "editOnDblClick": true
         },
         "editorMode": "ace/mode/scala",
-        "editorHide": true,
-        "tableHide": false
+        "editorHide": false,
+        "tableHide": true
       },
       "settings": {
         "params": {},
@@ -783,29 +788,31 @@
       "progressUpdateIntervalMs": 500
     }
   ],
-  "name": "Anomaly Detection",
+  "name": "Anomaly Detection Network",
   "id": "2DG9YNM1P",
   "angularObjects": {
-    "2DJFRZ338:shared_process": [],
-    "2DKTSHAHH:shared_process": [],
-    "2DN7QVX6Z:shared_process": [],
-    "2DP18YKH6:shared_process": [],
-    "2DKRD4X5D:shared_process": [],
-    "2DN6YGRES:shared_process": [],
-    "2DP6V5A63:shared_process": [],
-    "2DMS93VVC:shared_process": [],
-    "2DMG4XXZV:shared_process": [],
-    "2DKYB4J2M:shared_process": [],
-    "2DK4V1NW7:shared_process": [],
-    "2DJFZERJ7:shared_process": [],
-    "2DM1GHSXT:shared_process": [],
-    "2DNEXJC4X:shared_process": [],
-    "2DJYDCR71:shared_process": [],
-    "2DKP4C7DG:shared_process": [],
-    "2DMFD9S21:shared_process": [],
-    "2DJGA7AHT:shared_process": [],
-    "2DMG5VUK6:shared_process": []
+    "2DQ2R5SBW:shared_process": [],
+    "2DP2YMK8R:shared_process": [],
+    "2DRZ16278:shared_process": [],
+    "2DRMBQ2N2:shared_process": [],
+    "2DQPGS39D:shared_process": [],
+    "2DSNCPP5T:shared_process": [],
+    "2DRY6GP18:shared_process": [],
+    "2DQJXCFG7:shared_process": [],
+    "2DQWVW3VU:shared_process": [],
+    "2DPBFGYSY:shared_process": [],
+    "2DRXNSKG1:shared_process": [],
+    "2DRYRYVXP:shared_process": [],
+    "2DSD3F65W:shared_process": [],
+    "2DSYMFJ31:shared_process": [],
+    "2DPGTDF6B:shared_process": [],
+    "2DPR1K6QX:shared_process": [],
+    "2DRAZZYJK:shared_process": [],
+    "2DPWG5NPT:shared_process": [],
+    "2DQQAAMM8:shared_process": []
   },
-  "config": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
   "info": {}
 }

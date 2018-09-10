@@ -94,7 +94,7 @@ object AnomalyDetector extends Serializable {
     */
   def stringIndexers(inputCols: Seq[String], handleInvalid: String = "skip"):
   Map[String, StringIndexer] = {
-    (for (inputCol <- inputCols) yield stringIndexer(inputCol)).toMap
+    (for (inputCol <- inputCols) yield stringIndexer(inputCol, handleInvalid)).toMap
   }
 
   /**
