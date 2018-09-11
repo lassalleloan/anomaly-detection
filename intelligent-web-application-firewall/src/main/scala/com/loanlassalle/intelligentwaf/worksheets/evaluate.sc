@@ -23,12 +23,12 @@ println(s"Basic statistics of all dataset")
 RawHttpRequest.basicStatistics(normalTraining ++ normalTest ++ anomalous)
 println
 
-RawHttpRequest.saveCsv(s"$resourcesPath/train.csv", normalTraining ++ anomalous)
-RawHttpRequest.saveCsv(s"$resourcesPath/test.csv", normalTest ++ anomalous)
+RawHttpRequest.saveCsv(s"$resourcesPath/train-20.csv", normalTraining ++ anomalous)
+RawHttpRequest.saveCsv(s"$resourcesPath/test-20.csv", normalTest ++ anomalous)
 
 val columnNames = RawHttpRequest.columnNames
-val training = AnomalyDetector.preProcessing(s"$resourcesPath/train.csv", columnNames: _*)
-val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test.csv", columnNames: _*)
+val training = AnomalyDetector.preProcessing(s"$resourcesPath/train-20.csv", columnNames: _*)
+val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test-20.csv", columnNames: _*)
 
 /**
   * Tunes KMeans model with all combinations of parameters and determine the best
