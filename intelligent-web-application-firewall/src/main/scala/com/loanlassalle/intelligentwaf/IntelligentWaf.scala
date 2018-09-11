@@ -12,7 +12,7 @@ object IntelligentWaf {
     Logger.getLogger("org").setLevel(Level.ERROR)
     Logger.getLogger("com").setLevel(Level.ERROR)
 
-    val resourcesPath = getClass.getResource("/csic_2010_http_dataset").getPath
+    val resourcesPath = getClass.getResource("/csic_2010_http_dataset/complete").getPath
 
     /**
       * Pre-processes of raw data

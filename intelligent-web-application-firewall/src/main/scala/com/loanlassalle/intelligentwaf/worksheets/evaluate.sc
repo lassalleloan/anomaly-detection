@@ -9,7 +9,7 @@ import org.apache.spark.ml.clustering.KMeansModel
 Logger.getLogger("org").setLevel(Level.ERROR)
 Logger.getLogger("com").setLevel(Level.ERROR)
 
-val resourcesPath = getClass.getResource("/csic_2010_http_dataset").getPath
+val resourcesPath = getClass.getResource("/csic_2010_http_dataset/partially").getPath
 
 /**
   * Pre-processes of raw data for anomaly detection
@@ -23,12 +23,12 @@ println(s"Basic statistics of all dataset")
 RawHttpRequest.basicStatistics(normalTraining ++ normalTest ++ anomalous)
 println
 
-RawHttpRequest.saveCsv(s"$resourcesPath/train-20.csv", normalTraining ++ anomalous)
-RawHttpRequest.saveCsv(s"$resourcesPath/test-20.csv", normalTest ++ anomalous)
+RawHttpRequest.saveCsv(s"$resourcesPath/train-40.csv", normalTraining ++ anomalous)
+RawHttpRequest.saveCsv(s"$resourcesPath/test-40.csv", normalTest ++ anomalous)
 
 val columnNames = RawHttpRequest.columnNames
-val training = AnomalyDetector.preProcessing(s"$resourcesPath/train-20.csv", columnNames: _*)
-val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test-20.csv", columnNames: _*)
+val training = AnomalyDetector.preProcessing(s"$resourcesPath/train-40.csv", columnNames: _*)
+val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test-40.csv", columnNames: _*)
 
 /**
   * Tunes KMeans model with all combinations of parameters and determine the best
@@ -42,7 +42,7 @@ val trainModels = AnomalyDetector.tune(training,
 
 println("Tuning of k-Means model")
 AnomalyDetector.showTuningResults(trainModels)
-AnomalyDetector.saveTuningResults(s"$resourcesPath/results_tuning.csv", trainModels)
+AnomalyDetector.saveTuningResults(s"$resourcesPath/results_tuning-40.csv", trainModels)
 println
 
 /**
@@ -51,5 +51,5 @@ println
 println("Evaluation of k-Means model")
 val bestModel = trainModels.bestModel.asInstanceOf[KMeansModel]
 val metrics = AnomalyDetector.evaluate(bestModel, testing)
-AnomalyDetector.saveEvaluationResults(s"$resourcesPath/results_evaluation.csv", metrics)
+AnomalyDetector.saveEvaluationResults(s"$resourcesPath/results_evaluation-40.csv", metrics)
 println

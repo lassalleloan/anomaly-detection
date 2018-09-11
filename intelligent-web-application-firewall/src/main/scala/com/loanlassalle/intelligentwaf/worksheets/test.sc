@@ -9,7 +9,7 @@ import org.apache.spark.ml.clustering.KMeans
 Logger.getLogger("org").setLevel(Level.ERROR)
 Logger.getLogger("com").setLevel(Level.ERROR)
 
-val resourcesPath = getClass.getResource("/csic_2010_http_dataset").getPath
+val resourcesPath = getClass.getResource("/csic_2010_http_dataset/partially").getPath
 
 /**
   * Pre-processes of raw data for anomaly detection
@@ -23,12 +23,12 @@ println(s"Basic statistics of all dataset")
 RawHttpRequest.basicStatistics(normalTraining ++ normalTest ++ anomalous)
 println
 
-RawHttpRequest.saveCsv(s"$resourcesPath/train-20.csv", normalTraining ++ anomalous)
-RawHttpRequest.saveCsv(s"$resourcesPath/test-20.csv", normalTest ++ anomalous)
+RawHttpRequest.saveCsv(s"$resourcesPath/train-40.csv", normalTraining ++ anomalous)
+RawHttpRequest.saveCsv(s"$resourcesPath/test-40.csv", normalTest ++ anomalous)
 
 val columnNames = RawHttpRequest.columnNames
-val training = AnomalyDetector.preProcessing(s"$resourcesPath/train-20.csv", columnNames: _*)
-val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test-20.csv", columnNames: _*)
+val training = AnomalyDetector.preProcessing(s"$resourcesPath/train-40.csv", columnNames: _*)
+val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test-40.csv", columnNames: _*)
 
 val k = 18
 val maxIter = 20
@@ -38,7 +38,7 @@ val bestModel = new KMeans().setK(k).setMaxIter(maxIter).setTol(tol).setFeatures
 /**
   * Gets all distances to centroids for normal distribution
   */
-AnomalyDetector.saveDistancesToCentroids(s"$resourcesPath/results_distances.csv", bestModel,
+AnomalyDetector.saveDistancesToCentroids(s"$resourcesPath/results_distances-40.csv", bestModel,
   testing)
 
 /**
