@@ -1,0 +1,47 @@
+id: discrete, line number of raw HTTP request
+
+method: discrete, method to be performed on the resource identified by the Request-URI
+
+length_path: discrete, length of path of an URI
+printable_characters_ratio_path: continuous, percentage of printable characters in path
+non_printable_characters_ratio_path: continuous, percentage of non printable characters in path
+letter_ratio_path: continuous, percentage of letters in path
+digit_ratio_path: continuous, percentage of digits in path
+symbol_ratio_path: continuous, percentage of symbols in path
+num_segment: discrete, number of path segments separated by a slash "/"
+is_file: discrete, indicates if the URI is a file
+file_extension: discrete, extension of the file
+
+num_parameters: discrete, number of parameters in query
+length_query: discrete, length of query
+printable_characters_ratio_query: continuous, percentage of printable characters in query
+non_printable_characters_ratio_query: continuous, percentage of non printable characters in query
+letter_ratio_query: continuous, percentage of letters in query
+digit_ratio_query: continuous, percentage of digits in query
+symbol_ratio_query: continuous, percentage of symbols in query
+
+num_headers: discrete, number of headers
+standard_headers_ratio: continuous, percentage of standard headers in HTTP request
+non_standard_headers_ratio: continuous, percentage of non standard headers in HTTP request
+
+length_header_${header-name}: discrete, length of header's value
+printable_characters_ratio_header_${header-name}: continuous, percentage of printable characters in header_${header-name}
+non_printable_characters_ratio_header_${header-name}: continuous, percentage of non printable characters in header_${header-name}
+letter_ratio_header_${header-name}: continuous, percentage of letters in header_${header-name}
+digit_ratio_header_${header-name}: continuous, percentage of digits in header_${header-name}
+symbol_ratio_header_${header-name}: continuous, percentage of symbols in header_${header-name}
+is_standard_header_${header-name}: discrete, indicates if header_${header-name} is standard
+
+is_persistent_connection: discrete, indicates if is a persistent connection using value of "Connection" header
+content_type: discrete, MIME type of the HTTP request content
+
+length_body: discrete, length of body
+printable_characters_ratio_body: continuous, percentage of printable characters in body
+non_printable_characters_ratio_body: continuous, percentage of non printable characters in body
+letter_ratio_body: continuous, percentage of letters in body
+digit_ratio_body: continuous, percentage of digits in body
+symbol_ratio_body: continuous, percentage of symbols in body
+num_line: discrete, number of line in body
+num_word: discrete, number of word in body
+
+label: discret, type of HTTP request

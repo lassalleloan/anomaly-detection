@@ -1,0 +1,453 @@
+{
+  "paragraphs": [
+    {
+      "text": "%md\n# Intelligent Web Application Firewall\n#### author: Loan Lassalle",
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false,
+        "fontSize": 9.0
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch1\u003eIntelligent Web Application Firewall\u003c/h1\u003e\n\u003ch4\u003eauthor: Loan Lassalle\u003c/h4\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1536161340399_887223877",
+      "id": "20180905-152900_683058737",
+      "dateCreated": "Sep 5, 2018 3:29:00 PM",
+      "dateStarted": "Sep 11, 2018 5:52:49 PM",
+      "dateFinished": "Sep 11, 2018 5:52:49 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "Utils",
+      "text": "import java.nio.charset.StandardCharsets\nimport java.nio.file.{Files, Paths}\n\n/**\n  * A toolbox for basic statistics\n  */\nobject Utils {\n  \n  /**\n    * Writes data to path of a file\n    *\n    * @param path path of a file\n    * @param data data to write\n    */\n  def write(path: String, data: String): Unit \u003d\n    Files.write(Paths.get(path), data.getBytes(StandardCharsets.UTF_8))\n\n  /**\n    * Gets total non printable characters ratio of sequence of string\n    *\n    * @param seq sequence of string\n    * @return total non printable characters ratio of sequence of string\n    */\n  def nonPrintableCharRatio(seq: Seq[String]): Double \u003d\n    if (seq.isEmpty || seq.forall(_.isEmpty))\n      0\n    else\n      seq.foldLeft(0)((sum, value) \u003d\u003e sum + nonPrintableCharCount(value)) /\n        seq.foldLeft(0.0)((sum, value) \u003d\u003e sum + value.length)\n\n  /**\n    * Counts number of non printable characters in a string\n    *\n    * @param str string\n    * @return number of non printable characters in a string\n    */\n  def nonPrintableCharCount(str: String): Int \u003d\n    if (str.isEmpty)\n      str.length\n    else\n      str.length - printableCharCount(str)\n\n  /**\n    * Counts number of printable characters in a string\n    *\n    * @param str string\n    * @return number of printable characters in a string\n    */\n  def printableCharCount(str: String): Int \u003d\n    if (str.isEmpty)\n      str.length\n    else\n      \"[ -~]\".r.findAllIn(str).length\n\n  /**\n    * Gets total printable characters ratio of sequence of string\n    *\n    * @param seq sequence of string\n    * @return total printable characters ratio of sequence of string\n    */\n  def printableCharRatio(seq: Seq[String]): Double \u003d\n    if (seq.isEmpty || seq.forall(_.isEmpty))\n      0\n    else\n      seq.foldLeft(0)((sum, value) \u003d\u003e sum + printableCharCount(value)) /\n        seq.foldLeft(0.0)((sum, value) \u003d\u003e sum + value.length)\n\n  /**\n    * Gets total symbols ratio of sequence of string\n    *\n    * @param seq sequence of string\n    * @return total symbols ratio of sequence of string\n    */\n  def symbolRatio(seq: Seq[String]): Double \u003d\n    if (seq.isEmpty || seq.forall(_.isEmpty))\n      0\n    else\n      seq.foldLeft(0)((sum, value) \u003d\u003e sum + symbolCount(value)) /\n        seq.foldLeft(0.0)((sum, value) \u003d\u003e sum + value.length)\n\n  /**\n    * Counts number of symbols in a string\n    *\n    * @param str string\n    * @return number of symbols in a string\n    */\n  def symbolCount(str: String): Int \u003d\n    if (str.isEmpty)\n      str.length\n    else\n      printableCharCount(str) - letterCount(str) - digitCount(str)\n\n  /**\n    * Gets total letters ratio of sequence of string\n    *\n    * @param seq sequence of string\n    * @return total letters ratio of sequence of string\n    */\n  def letterRatio(seq: Seq[String]): Double \u003d\n    if (seq.isEmpty || seq.forall(_.isEmpty))\n      0\n    else\n      seq.foldLeft(0)((sum, value) \u003d\u003e sum + letterCount(value)) /\n        seq.foldLeft(0.0)((sum, value) \u003d\u003e sum + value.length)\n\n  /**\n    * Counts number of letters in a string\n    *\n    * @param str string\n    * @return number of letters in a string\n    */\n  def letterCount(str: String): Int \u003d\n    if (str.isEmpty)\n      str.length\n    else\n      str.count(_.isLetter)\n\n  /**\n    * Gets total digits ratio of sequence of string\n    *\n    * @param seq sequence of string\n    * @return total digits ratio of sequence of string\n    */\n  def digitRatio(seq: Seq[String]): Double \u003d\n    if (seq.isEmpty || seq.forall(_.isEmpty))\n      0\n    else\n      seq.foldLeft(0)((sum, value) \u003d\u003e sum + digitCount(value)) /\n        seq.foldLeft(0.0)((sum, value) \u003d\u003e sum + value.length)\n\n  /**\n    * Counts number of digits in a string\n    *\n    * @param str string\n    * @return number of digits in a string\n    */\n  def digitCount(str: String): Int \u003d\n    if (str.isEmpty)\n      str.length\n    else\n      str.count(_.isDigit)\n}\n",
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/scala",
+        "title": true,
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import java.nio.charset.StandardCharsets\nimport java.nio.file.{Files, Paths}\ndefined object Utils\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1536165740285_-1825649913",
+      "id": "20180905-164220_1801746802",
+      "dateCreated": "Sep 5, 2018 4:42:20 PM",
+      "dateStarted": "Sep 11, 2018 5:52:49 PM",
+      "dateFinished": "Sep 11, 2018 5:52:51 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "title": "AnomalyDetector",
+      "text": "import org.apache.spark.ml.{Pipeline, PipelineModel}\nimport org.apache.spark.ml.clustering.{KMeans, KMeansModel}\nimport org.apache.spark.ml.feature._\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\nimport org.apache.spark.mllib.evaluation.BinaryClassificationMetrics\nimport org.apache.spark.sql._\n\n/**\n  * Used to detect anomalies in sequence of raw HTTP requests\n  */\nobject AnomalyDetector extends java.io.Serializable {\n\n  /**\n    * Pre-process a dataFrame to obtain scaled features\n    *\n    * @param path        path of CSV file\n    * @param columnNames column names of CSV file rows\n    * @return dataFrame with scaled features\n    */\n  def preProcessing(path: String, columnNames: String*): DataFrame \u003d {\n    require(path.endsWith(\".csv\"), \"file must be a CSV file\")\n\n    // Gets data in CSV file\n    val dataFrame \u003d spark.read\n      .option(\"inferSchema\", value \u003d true)\n      .option(\"header\", value \u003d false)\n      .csv(path)\n      .toDF(columnNames: _*)\n\n    preProcessing(dataFrame)\n  }\n\n  /**\n    * Pre-process a dataFrame to obtain scaled features\n    *\n    * @param dataFrame data to pre-process\n    * @return dataFrame with scaled features\n    */\n  def preProcessing(dataFrame: DataFrame): DataFrame \u003d {\n    val inputCols \u003d Seq(\"method\", \"file_extension\", \"content_type\")\n\n    require(inputCols.toSet.subsetOf(dataFrame.columns.toSet),\n      s\"dataFrame must contain $inputCols columns\")\n\n    // Encodes label string columns into label index columns\n    val indexers \u003d stringIndexers(inputCols)\n\n    // Maps a categorical feature, represented as a label index, to a binary vector\n    val encoders \u003d oneHotEncoders(indexers.keySet.toSeq)\n\n    // Original columns, without id and label / string columns, but with new vector encoded cols\n    val assemblerCols \u003d Set(dataFrame.columns: _*) --\n      Seq(\"id\", \"label\") -- inputCols ++\n      encoders.keySet.toArray\n\n    // Combines a given list of columns into a single vector column\n    val assembler \u003d new VectorAssembler()\n      .setInputCols(assemblerCols.toArray)\n      .setOutputCol(\"features\")\n\n    // Normalizes each feature to standard deviation and / or zero mean\n    val scaler \u003d new StandardScaler()\n      .setWithMean(true)\n      .setInputCol(assembler.getOutputCol)\n      .setOutputCol(\"scaled_features\")\n\n    val pipeline \u003d new Pipeline().setStages(indexers.values.toArray ++\n      encoders.values ++ Array(assembler, scaler))\n\n    val scaledData \u003d pipeline.fit(dataFrame).transform(dataFrame)\n\n    scaledData.select(\"id\", \"label\", \"scaled_features\")\n  }\n\n  /**\n    * Gets sequence of StringIndexers for columns\n    *\n    * @param inputCols     input column name\n    * @param handleInvalid strategy to handle invalid data\n    * @return map of StringIndexers for columns\n    */\n  def stringIndexers(inputCols: Seq[String], handleInvalid: String \u003d \"skip\"):\n  Map[String, StringIndexer] \u003d {\n    (for (inputCol \u003c- inputCols) yield stringIndexer(inputCol)).toMap\n  }\n\n  /**\n    * Gets StringIndexer for a column\n    *\n    * @param inputCol      input column name\n    * @param handleInvalid strategy to handle invalid data\n    * @return StringIndexer for a column\n    */\n  def stringIndexer(inputCol: String, handleInvalid: String \u003d \"skip\"):\n  (String, StringIndexer) \u003d {\n    val outputCol \u003d inputCol + \"_index\"\n    val indexer \u003d new StringIndexer()\n      .setInputCol(inputCol)\n      .setOutputCol(outputCol)\n      .setHandleInvalid(handleInvalid)\n\n    outputCol -\u003e indexer\n  }\n\n  /**\n    * Gets sequence of OneHotEncoders for columns\n    *\n    * @param inputCols     input column name\n    * @return map of OneHotEncoders for columns\n    */\n  def oneHotEncoders(inputCols: Seq[String]): Map[String, OneHotEncoder] \u003d {\n    (for (inputCol \u003c- inputCols) yield oneHotEncoder(inputCol)).toMap\n  }\n\n  /**\n    * Gets OneHotEncoder for a column\n    *\n    * @param inputCol      input column name\n    * @return OneHotEncoder for a column\n    */\n  def oneHotEncoder(inputCol: String): (String, OneHotEncoder) \u003d {\n    val outputCol \u003d inputCol + \"_vector\"\n    val encoder \u003d new OneHotEncoder()\n      .setInputCol(inputCol)\n      .setOutputCol(outputCol)\n      \n    outputCol -\u003e encoder\n  }\n\n  /**\n    * Displays the tuning of KMeans model with all combinations of parameters\n    *\n    * @param model         KMeans model to display the tuning\n    * @param onlyBestModel indicates displays only best model\n    */\n  /*def showTuningResults(model: TrainValidationSplitModel, onlyBestModel: Boolean \u003d true): Unit \u003d {\n\n    // Gets results\n    val results \u003d tuningResults(model)\n\n    // Show results\n    if (!onlyBestModel) {\n      results.foreach(row \u003d\u003e\n        println(row.map(param \u003d\u003e f\"${param._1}: ${param._2}%.4f\").mkString(\", \")))\n    }\n\n    // Gets best result\n    val bestResult \u003d results.maxBy(row \u003d\u003e row.filter(param \u003d\u003e param._1.equals(\"avg\")).map(_._2).head)\n    println(f\"Best model:\" +\n      f\"${bestResult.map(param \u003d\u003e f\"${param._1}: ${param._2}%.4f\").mkString(\", \")}\")\n  }*/\n\n  /**\n    * Gets tuning results of KMeans model with all combinations of parameters\n    *\n    * @param model KMeans model to display the tuning\n    * @return tuning results of KMeans model with all combinations of parameters\n    */\n  /*private def tuningResults(model: TrainValidationSplitModel): Seq[Seq[(String, Double)]] \u003d {\n\n    // Gets name and value of each parameter\n    val params \u003d model.getEstimatorParamMaps.map(paramMap \u003d\u003e\n      paramMap.toSeq.map(paramPair \u003d\u003e paramPair.param.name -\u003e paramPair.value))\n\n    // Gets metric name and all validation metrics\n    val metricName \u003d model.getEvaluator.asInstanceOf[ClusteringEvaluator].getMetricName\n    val metrics \u003d model.validationMetrics\n\n    // Computes average after each validation metrics\n    val average \u003d for (i \u003c- metrics.indices) yield metrics.take(i + 1).sum / (i + 1).toDouble\n\n    // Rearranges results\n    val results \u003d params.zip(metrics).zip(average).map {\n      case ((paramPair, metric), avg) \u003d\u003e\n        paramPair.map(param \u003d\u003e\n          param._1 -\u003e (param._2 match {\n            case int: Int \u003d\u003e int\n            case float: Float \u003d\u003e float\n            case double: Double \u003d\u003e double\n          })) ++\n          Seq(metricName -\u003e metric, \"avg\" -\u003e avg)\n    }\n\n    results\n  }*/\n\n  /**\n    * Saves some tuning results to a CSV file\n    *\n    * @param path  path of CSV file\n    * @param model train validations split model to get tuning results\n    */\n  /*def saveTuningResults(path: String, model: TrainValidationSplitModel): Unit \u003d {\n\n    // Gets results\n    val results \u003d tuningResults(model)\n\n    // Gets best result\n    val bestResult \u003d results.maxBy(row \u003d\u003e\n      row.filter { case (name, _) \u003d\u003e name.equals(\"avg\") }\n        .map { case (_, value) \u003d\u003e value }.head)\n\n    val bestResultTol \u003d bestResult.filter(param \u003d\u003e param._1.equals(\"tol\")).head\n    val resultsWithBestTol \u003d results.filter(row \u003d\u003e row.contains(bestResultTol))\n\n    // Gets list of parameters applied to the model during tuning\n    val kList \u003d resultsWithBestTol\n      .flatMap(row \u003d\u003e row.filter { case (name, _) \u003d\u003e name.equals(\"k\") }\n        .map { case (_, value) \u003d\u003e value })\n      .distinct\n\n    val maxIterList \u003d resultsWithBestTol\n      .flatMap(row \u003d\u003e row.filter { case (name, _) \u003d\u003e name.equals(\"maxIter\") }\n        .map { case (_, value) \u003d\u003e value })\n      .distinct\n\n    // Writes list of k values as column names and\n    // maxIter values as row names\n    val data \u003d s\",${kList.mkString(\",\")}${System.lineSeparator}\" +\n      maxIterList.map { maxIter \u003d\u003e\n        f\"$maxIter,\" +\n          kList.flatMap { k \u003d\u003e\n            resultsWithBestTol\n              .filter(row \u003d\u003e row.contains((\"maxIter\", maxIter)) \u0026\u0026 row.contains((\"k\", k)))\n              .map(row \u003d\u003e row.filter(param \u003d\u003e param._1.equals(\"avg\")).map(_._2).head)\n          }.mkString(\",\") +\n          System.lineSeparator\n      }.mkString\n\n    Utils.write(path, data)\n  }*/\n\n  def train(dataFrame: DataFrame,\n            k: Int,\n            maxIter: Int,\n            tol: Double): PipelineModel \u003d {\n\n    val kMeans \u003d new KMeans()\n      .setK(k)\n      .setMaxIter(maxIter)\n      .setTol(tol)\n      .setFeaturesCol(\"scaled_features\")\n\n    val pipeline \u003d new Pipeline().setStages(Array(kMeans))\n    pipeline.fit(dataFrame)\n  }\n\n  /**\n    * Predicts anomalies with a KMeansModel and a threshold\n    *\n    * @param model     KMeansModel of training\n    * @param threshold threshold of training\n    * @param dataFrame data to predict\n    * @return anomalies predicted\n    */\n  def test(model: KMeansModel, threshold: Double, dataFrame: DataFrame): DataFrame \u003d {\n    val predictions \u003d model.transform(dataFrame)\n    predictions.filter(distanceToCentroid(model, _) \u003e\u003d threshold)\n  }\n\n  /**\n    * Displays all distances to all centroids\n    *\n    * @param model     KMeansModel\n    * @param dataFrame data to display distances to centroids\n    */\n  def showDistancesToCentroids(model: KMeansModel, dataFrame: DataFrame): Unit \u003d {\n    distancesToCentroids(model, dataFrame).foreach(println(_))\n  }\n\n  /**\n    * Gets all distances to all centroids\n    *\n    * @param model     KMeansModel\n    * @param dataFrame data to get distances to centroids\n    * @return all distances to all centroids\n    */\n  private def distancesToCentroids(model: KMeansModel, dataFrame: DataFrame): Dataset[Double] \u003d {\n    import spark.implicits._\n    val predictions \u003d model.transform(dataFrame)\n    predictions.map(distanceToCentroid(model, _))\n  }\n\n  /**\n    * Gets the distance between the record and the centroid\n    *\n    * @param model KMeansModel\n    * @param row   row of a record\n    * @return distance between the record and the centroid\n    */\n  private def distanceToCentroid(model: KMeansModel, row: Row): Double \u003d {\n    val prediction \u003d row.getAs[Int](\"prediction\")\n    val features \u003d row.getAs[Vector](\"scaled_features\")\n    Vectors.sqdist(model.clusterCenters(prediction), features)\n  }\n\n  /**\n    * Saves all distances to all centroids\n    *\n    * @param path      path of CSV file\n    * @param model     KMeansModel\n    * @param dataFrame data to save all distances to all centroids\n    */\n  /*def saveDistancesToCentroids(path: String, model: KMeansModel, dataFrame: DataFrame): Unit \u003d {\n    Utils.write(path, distancesToCentroids(model, dataFrame).collect.mkString(System.lineSeparator))\n  }*/\n\n  /**\n    * Evaluates metrics of predictions with a binary classification metrics\n    *\n    * @param model     KMeansModel of training\n    * @param dataFrame data to evaluate\n    * @return a binary classification metrics\n    */\n  def evaluate(model: KMeansModel, dataFrame: DataFrame): BinaryClassificationMetrics \u003d {\n    val predictions \u003d model.transform(dataFrame)\n\n    import spark.implicits._\n    val predictionsAndLabels \u003d predictions.map { row \u003d\u003e\n      val label \u003d row.getAs[String](\"label\").equals(\"normal\").compareTo(false).toDouble\n      val prediction \u003d row.getAs[Int](\"prediction\").toDouble\n      prediction -\u003e label\n    }\n\n    new BinaryClassificationMetrics(predictionsAndLabels.rdd)\n  }\n\n  /**\n    * Saves some evaluation results to a CSV file\n    *\n    * @param path    path of CSV file\n    * @param metrics metrics to save\n    */\n  /*def saveEvaluationResults(path: String, metrics: BinaryClassificationMetrics): Unit \u003d {\n\n    // Collects precision values and recall values by threshold\n    val precisionAndRecall \u003d metrics.precisionByThreshold.zip(metrics.recallByThreshold).map {\n      case ((threshold, precision), (_, recall)) \u003d\u003e (threshold, precision, recall)\n    }.collect\n\n    // Collects F-measure values by beta and threshold\n    val fMetrics \u003d metrics.fMeasureByThreshold(0.5).collect.map {\n      case (threshold, f0) \u003d\u003e (0.5, threshold, f0)\n    } ++\n      metrics.fMeasureByThreshold(1.0).collect.map {\n        case (threshold, f1) \u003d\u003e (1.0, threshold, f1)\n      } ++\n      metrics.fMeasureByThreshold(2.0).collect.map {\n        case (threshold, f2) \u003d\u003e (2.0, threshold, f2)\n      } ++\n      metrics.fMeasureByThreshold(3.0).collect.map {\n        case (threshold, f3) \u003d\u003e (3.0, threshold, f3)\n      }\n\n    // Gets list of all threshold values\n    val thresholdList \u003d precisionAndRecall.map { case (threshold, _, _) \u003d\u003e threshold }\n\n    val thresholdData \u003d s\"threshold,precision,recall${System.lineSeparator}\" +\n      precisionAndRecall.map {\n        case (threshold, precision, recall) \u003d\u003e\n          s\"$threshold,$precision,$recall\"\n      }.mkString(System.lineSeparator)\n\n    val fData \u003d s\",${thresholdList.mkString(\",\")}${System.lineSeparator}\" +\n      List(0.5, 1, 2, 3).map { beta \u003d\u003e\n        s\"$beta,\" +\n          thresholdList.flatMap { threshold \u003d\u003e\n            fMetrics.filter {\n              case (b, t, _) \u003d\u003e beta.equals(b) \u0026\u0026 threshold.equals(t)\n            }.map {\n              case (_, _, f) \u003d\u003e f\n            }\n          }.mkString(\",\") +\n          System.lineSeparator\n      }.mkString\n\n    Utils.write(path, thresholdData + System.lineSeparator * 8 + fData)\n  }*/\n\n  /**\n    * Displays results of the evaluation of metrics\n    *\n    * @param metrics metrics evaluated\n    */\n  def showEvaluationResults(metrics: BinaryClassificationMetrics): Unit \u003d {\n\n    // Collects precision values and recall values by threshold\n    val precisionAndRecall \u003d metrics.precisionByThreshold.zip(metrics.recallByThreshold).map {\n      case ((threshold, precision), (_, recall)) \u003d\u003e (threshold, precision, recall)\n    }\n\n    // Displays precision values and recall values by threshold\n    println(\"Precision and recall\")\n    precisionAndRecall.foreach {\n      case (threshold, precision, recall) \u003d\u003e\n        println(f\"threshold: $threshold%.4f, precision: $precision%.4f, recall: $recall%.4f\")\n    }\n\n    println\n\n    // Displays F-measure\n    println(\"F-measures\")\n    val betas \u003d List(0.5, 1, 2, 3)\n    betas.foreach(beta \u003d\u003e\n      metrics.fMeasureByThreshold(beta).foreach { case (t, f) \u003d\u003e\n        println(f\"threshold: $t%.4f, beta : $beta%.4f, f-score: $f%.4f\")\n      }\n    )\n  }\n\n  /**\n    * Saves dataFrame to Parquet file\n    *\n    * @param path      path of Parquet file\n    * @param dataFrame data to save\n    */\n  /*def saveParquet(path: String, dataFrame: DataFrame): Unit \u003d dataFrame.write\n    .mode(SaveMode.Overwrite)\n    .parquet(path)*/\n\n  /**\n    * Saves model to path\n    *\n    * @param path  path of model saved\n    * @param model model to save\n    */\n  /*def saveModel(path: String, model: KMeansModel): Unit \u003d model.write\n    .overwrite()\n    .save(path)*/\n\n  /**\n    * Saves pipeline to path\n    *\n    * @param path     path of model saved\n    * @param pipeline pipeline to save\n    */\n  /*def savePipeline(path: String, pipeline: Pipeline): Unit \u003d pipeline.write\n    .overwrite()\n    .save(path)*/\n}",
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": true,
+        "title": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.ml.{Pipeline, PipelineModel}\nimport org.apache.spark.ml.clustering.{KMeans, KMeansModel}\nimport org.apache.spark.ml.feature._\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\nimport org.apache.spark.mllib.evaluation.BinaryClassificationMetrics\nimport org.apache.spark.sql._\ndefined object AnomalyDetector\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1536582207916_-678506066",
+      "id": "20180910-122327_1011506083",
+      "dateCreated": "Sep 10, 2018 12:23:27 PM",
+      "dateStarted": "Sep 11, 2018 5:52:49 PM",
+      "dateFinished": "Sep 11, 2018 5:52:53 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n## Pre-processes of raw data",
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003ePre-processes of raw data\u003c/h2\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1536581617058_-1444399919",
+      "id": "20180910-121337_929542884",
+      "dateCreated": "Sep 10, 2018 12:13:37 PM",
+      "dateStarted": "Sep 11, 2018 5:52:49 PM",
+      "dateFinished": "Sep 11, 2018 5:52:49 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val columnNames \u003d List(\n    \"id\",\"method\",\"length_path\",\"printable_characters_ratio_path\",\"non_printable_characters_ratio_path\",\"letter_ratio_path\",\"digit_ratio_path\",\"symbol_ratio_path\",\"num_segment\",\"is_file\",\"file_extension\",\"num_parameters\"\n    ,\"length_query\",\"printable_characters_ratio_query\",\"non_printable_characters_ratio_query\",\"letter_ratio_query\",\"digit_ratio_query\",\"symbol_ratio_query\",\"num_headers\",\"standard_headers_ratio\"\n    ,\"non_standard_headers_ratio\",\"length_header_accept\",\"printable_characters_ratio_header_accept\",\"non_printable_characters_ratio_header_accept\",\"letter_ratio_header_accept\",\"digit_ratio_header_accept\"\n    ,\"symbol_ratio_header_accept\",\"is_standard_header_accept\",\"length_header_accept_charset\",\"printable_characters_ratio_header_accept_charset\",\"non_printable_characters_ratio_header_accept_charset\"\n    ,\"letter_ratio_header_accept_charset\",\"digit_ratio_header_accept_charset\",\"symbol_ratio_header_accept_charset\",\"is_standard_header_accept_charset\",\"length_header_accept_datetime\"\n    ,\"printable_characters_ratio_header_accept_datetime\",\"non_printable_characters_ratio_header_accept_datetime\",\"letter_ratio_header_accept_datetime\",\"digit_ratio_header_accept_datetime\"\n    ,\"symbol_ratio_header_accept_datetime\",\"is_standard_header_accept_datetime\",\"length_header_accept_encoding\",\"printable_characters_ratio_header_accept_encoding\",\"non_printable_characters_ratio_header_accept_encoding\"\n    ,\"letter_ratio_header_accept_encoding\",\"digit_ratio_header_accept_encoding\",\"symbol_ratio_header_accept_encoding\",\"is_standard_header_accept_encoding\",\"length_header_accept_language\"\n    ,\"printable_characters_ratio_header_accept_language\",\"non_printable_characters_ratio_header_accept_language\",\"letter_ratio_header_accept_language\",\"digit_ratio_header_accept_language\"\n    ,\"symbol_ratio_header_accept_language\",\"is_standard_header_accept_language\",\"length_header_access_control_request_method\",\"printable_characters_ratio_header_access_control_request_method\"\n    ,\"non_printable_characters_ratio_header_access_control_request_method\",\"letter_ratio_header_access_control_request_method\",\"digit_ratio_header_access_control_request_method\"\n    ,\"symbol_ratio_header_access_control_request_method\",\"is_standard_header_access_control_request_method\",\"length_header_access_control_request_headers\",\"printable_characters_ratio_header_access_control_request_headers\"\n    ,\"non_printable_characters_ratio_header_access_control_request_headers\",\"letter_ratio_header_access_control_request_headers\",\"digit_ratio_header_access_control_request_headers\"\n    ,\"symbol_ratio_header_access_control_request_headers\",\"is_standard_header_access_control_request_headers\",\"length_header_authorization\",\"printable_characters_ratio_header_authorization\"\n    ,\"non_printable_characters_ratio_header_authorization\",\"letter_ratio_header_authorization\",\"digit_ratio_header_authorization\",\"symbol_ratio_header_authorization\",\"is_standard_header_authorization\"\n    ,\"length_header_cache_control\",\"printable_characters_ratio_header_cache_control\",\"non_printable_characters_ratio_header_cache_control\",\"letter_ratio_header_cache_control\",\"digit_ratio_header_cache_control\"\n    ,\"symbol_ratio_header_cache_control\",\"is_standard_header_cache_control\",\"length_header_connection\",\"printable_characters_ratio_header_connection\",\"non_printable_characters_ratio_header_connection\"\n    ,\"letter_ratio_header_connection\",\"digit_ratio_header_connection\",\"symbol_ratio_header_connection\",\"is_standard_header_connection\",\"length_header_content_length\",\"printable_characters_ratio_header_content_length\"\n    ,\"non_printable_characters_ratio_header_content_length\",\"letter_ratio_header_content_length\",\"digit_ratio_header_content_length\",\"symbol_ratio_header_content_length\",\"is_standard_header_content_length\"\n    ,\"length_header_content_md5\",\"printable_characters_ratio_header_content_md5\",\"non_printable_characters_ratio_header_content_md5\",\"letter_ratio_header_content_md5\",\"digit_ratio_header_content_md5\"\n    ,\"symbol_ratio_header_content_md5\",\"is_standard_header_content_md5\",\"length_header_content_type\",\"printable_characters_ratio_header_content_type\",\"non_printable_characters_ratio_header_content_type\"\n    ,\"letter_ratio_header_content_type\",\"digit_ratio_header_content_type\",\"symbol_ratio_header_content_type\",\"is_standard_header_content_type\",\"length_header_cookie\",\"printable_characters_ratio_header_cookie\"\n    ,\"non_printable_characters_ratio_header_cookie\",\"letter_ratio_header_cookie\",\"digit_ratio_header_cookie\",\"symbol_ratio_header_cookie\",\"is_standard_header_cookie\",\"length_header_date\"\n    ,\"printable_characters_ratio_header_date\",\"non_printable_characters_ratio_header_date\",\"letter_ratio_header_date\",\"digit_ratio_header_date\",\"symbol_ratio_header_date\",\"is_standard_header_date\",\"length_header_expect\"\n    ,\"printable_characters_ratio_header_expect\",\"non_printable_characters_ratio_header_expect\",\"letter_ratio_header_expect\",\"digit_ratio_header_expect\",\"symbol_ratio_header_expect\",\"is_standard_header_expect\"\n    ,\"length_header_from\",\"printable_characters_ratio_header_from\",\"non_printable_characters_ratio_header_from\",\"letter_ratio_header_from\",\"digit_ratio_header_from\",\"symbol_ratio_header_from\",\"is_standard_header_from\"\n    ,\"length_header_host\",\"printable_characters_ratio_header_host\",\"non_printable_characters_ratio_header_host\",\"letter_ratio_header_host\",\"digit_ratio_header_host\",\"symbol_ratio_header_host\",\"is_standard_header_host\"\n    ,\"length_header_if_match\",\"printable_characters_ratio_header_if_match\",\"non_printable_characters_ratio_header_if_match\",\"letter_ratio_header_if_match\",\"digit_ratio_header_if_match\",\"symbol_ratio_header_if_match\"\n    ,\"is_standard_header_if_match\",\"length_header_if_modified_since\",\"printable_characters_ratio_header_if_modified_since\",\"non_printable_characters_ratio_header_if_modified_since\",\"letter_ratio_header_if_modified_since\"\n    ,\"digit_ratio_header_if_modified_since\",\"symbol_ratio_header_if_modified_since\",\"is_standard_header_if_modified_since\",\"length_header_if_none_match\",\"printable_characters_ratio_header_if_none_match\"\n    ,\"non_printable_characters_ratio_header_if_none_match\",\"letter_ratio_header_if_none_match\",\"digit_ratio_header_if_none_match\",\"symbol_ratio_header_if_none_match\",\"is_standard_header_if_none_match\"\n    ,\"length_header_if_range\",\"printable_characters_ratio_header_if_range\",\"non_printable_characters_ratio_header_if_range\",\"letter_ratio_header_if_range\",\"digit_ratio_header_if_range\",\"symbol_ratio_header_if_range\"\n    ,\"is_standard_header_if_range\",\"length_header_if_unmodified_since\",\"printable_characters_ratio_header_if_unmodified_since\",\"non_printable_characters_ratio_header_if_unmodified_since\"\n    ,\"letter_ratio_header_if_unmodified_since\",\"digit_ratio_header_if_unmodified_since\",\"symbol_ratio_header_if_unmodified_since\",\"is_standard_header_if_unmodified_since\",\"length_header_max_forwards\"\n    ,\"printable_characters_ratio_header_max_forwards\",\"non_printable_characters_ratio_header_max_forwards\",\"letter_ratio_header_max_forwards\",\"digit_ratio_header_max_forwards\",\"symbol_ratio_header_max_forwards\"\n    ,\"is_standard_header_max_forwards\",\"length_header_origin\",\"printable_characters_ratio_header_origin\",\"non_printable_characters_ratio_header_origin\",\"letter_ratio_header_origin\",\"digit_ratio_header_origin\"\n    ,\"symbol_ratio_header_origin\",\"is_standard_header_origin\",\"length_header_pragma\",\"printable_characters_ratio_header_pragma\",\"non_printable_characters_ratio_header_pragma\",\"letter_ratio_header_pragma\"\n    ,\"digit_ratio_header_pragma\",\"symbol_ratio_header_pragma\",\"is_standard_header_pragma\",\"length_header_proxy_authorization\",\"printable_characters_ratio_header_proxy_authorization\"\n    ,\"non_printable_characters_ratio_header_proxy_authorization\",\"letter_ratio_header_proxy_authorization\",\"digit_ratio_header_proxy_authorization\",\"symbol_ratio_header_proxy_authorization\"\n    ,\"is_standard_header_proxy_authorization\",\"length_header_range\",\"printable_characters_ratio_header_range\",\"non_printable_characters_ratio_header_range\",\"letter_ratio_header_range\",\"digit_ratio_header_range\"\n    ,\"symbol_ratio_header_range\",\"is_standard_header_range\",\"length_header_referer\",\"printable_characters_ratio_header_referer\",\"non_printable_characters_ratio_header_referer\",\"letter_ratio_header_referer\"\n    ,\"digit_ratio_header_referer\",\"symbol_ratio_header_referer\",\"is_standard_header_referer\",\"length_header_te\",\"printable_characters_ratio_header_te\",\"non_printable_characters_ratio_header_te\",\"letter_ratio_header_te\"\n    ,\"digit_ratio_header_te\",\"symbol_ratio_header_te\",\"is_standard_header_te\",\"length_header_user_agent\",\"printable_characters_ratio_header_user_agent\",\"non_printable_characters_ratio_header_user_agent\"\n    ,\"letter_ratio_header_user_agent\",\"digit_ratio_header_user_agent\",\"symbol_ratio_header_user_agent\",\"is_standard_header_user_agent\",\"length_header_upgrade\",\"printable_characters_ratio_header_upgrade\"\n    ,\"non_printable_characters_ratio_header_upgrade\",\"letter_ratio_header_upgrade\",\"digit_ratio_header_upgrade\",\"symbol_ratio_header_upgrade\",\"is_standard_header_upgrade\",\"length_header_via\"\n    ,\"printable_characters_ratio_header_via\",\"non_printable_characters_ratio_header_via\",\"letter_ratio_header_via\",\"digit_ratio_header_via\",\"symbol_ratio_header_via\",\"is_standard_header_via\",\"length_header_warning\"\n    ,\"printable_characters_ratio_header_warning\",\"non_printable_characters_ratio_header_warning\",\"letter_ratio_header_warning\",\"digit_ratio_header_warning\",\"symbol_ratio_header_warning\",\"is_standard_header_warning\"\n    ,\"is_persistent_connection\",\"content_type\",\"length_body\",\"printable_characters_ratio_body\",\"non_printable_characters_ratio_body\",\"letter_ratio_body\",\"digit_ratio_body\",\"symbol_ratio_body\",\"num_line\",\"num_word\",\"label\")",
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "fontSize": 9.0,
+        "enabled": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 391.0,
+              "optionOpen": false
+            }
+          }
+        },
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "columnNames: List[String] \u003d List(id, method, length_path, printable_characters_ratio_path, non_printable_characters_ratio_path, letter_ratio_path, digit_ratio_path, symbol_ratio_path, num_segment, is_file, file_extension, num_parameters, length_query, printable_characters_ratio_query, non_printable_characters_ratio_query, letter_ratio_query, digit_ratio_query, symbol_ratio_query, num_headers, standard_headers_ratio, non_standard_headers_ratio, length_header_accept, printable_characters_ratio_header_accept, non_printable_characters_ratio_header_accept, letter_ratio_header_accept, digit_ratio_header_accept, symbol_ratio_header_accept, is_standard_header_accept, length_header_accept_charset, printable_characters_ratio_header_accept_charset, non_printable_characters_ratio_header_accept_char..."
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1536161599539_-1891464972",
+      "id": "20180905-153319_1824902393",
+      "dateCreated": "Sep 5, 2018 3:33:19 PM",
+      "dateStarted": "Sep 11, 2018 5:52:51 PM",
+      "dateFinished": "Sep 11, 2018 5:52:53 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val training \u003d AnomalyDetector.preProcessing(\"/data/csic_2010_http_dataset/partially/train-40.csv\", columnNames: _*)\nval testing \u003d AnomalyDetector.preProcessing(\"/data/csic_2010_http_dataset/partially/test-40.csv\", columnNames: _*)",
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "training: org.apache.spark.sql.DataFrame \u003d [id: int, label: string ... 1 more field]\ntesting: org.apache.spark.sql.DataFrame \u003d [id: int, label: string ... 1 more field]\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1536166699125_77400449",
+      "id": "20180905-165819_1052346364",
+      "dateCreated": "Sep 5, 2018 4:58:19 PM",
+      "dateStarted": "Sep 11, 2018 5:52:53 PM",
+      "dateFinished": "Sep 11, 2018 5:53:00 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n## Trains the model",
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eTrains the model\u003c/h2\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1536581520291_-182377554",
+      "id": "20180910-121200_1089067049",
+      "dateCreated": "Sep 10, 2018 12:12:00 PM",
+      "dateStarted": "Sep 11, 2018 5:52:49 PM",
+      "dateFinished": "Sep 11, 2018 5:52:49 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val bestModel \u003d AnomalyDetector.train(training, 20, 60, 1.0e-6).stages.last.asInstanceOf[KMeansModel]",
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": false,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "bestModel: org.apache.spark.ml.clustering.KMeansModel \u003d kmeans_efe9585dfc74\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1536587745932_2012115727",
+      "id": "20180910-135545_1886156005",
+      "dateCreated": "Sep 10, 2018 1:55:45 PM",
+      "dateStarted": "Sep 11, 2018 5:52:54 PM",
+      "dateFinished": "Sep 11, 2018 5:53:02 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "%md\n## Tests the model",
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true
+        },
+        "editorMode": "ace/mode/markdown",
+        "editorHide": true,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "\u003cdiv class\u003d\"markdown-body\"\u003e\n\u003ch2\u003eTests the model\u003c/h2\u003e\n\u003c/div\u003e"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1536588011300_370744627",
+      "id": "20180910-140011_1146550442",
+      "dateCreated": "Sep 10, 2018 2:00:11 PM",
+      "dateStarted": "Sep 11, 2018 5:52:49 PM",
+      "dateFinished": "Sep 11, 2018 5:52:49 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "text": "val threshold \u003d 1.0\nval anomalies \u003d AnomalyDetector.test(bestModel, threshold, testing)\n\nprintln(s\"Number of anomalies in file: ${\n  testing.filter(row \u003d\u003e\n    row.getAs[String](\"label\")\n      .equals(\"anomaly\"))\n    .count\n}\")\nprintln(s\"Number of anomalies detected: ${anomalies.count}\")\nprintln(s\"Number of actual anomalies detected: ${\n  anomalies.filter(row \u003d\u003e\n    row.getAs[String](\"label\")\n      .equals(\"anomaly\"))\n    .count\n}\")\nanomalies.show(3)",
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "editorMode": "ace/mode/scala",
+        "editorHide": false,
+        "tableHide": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "threshold: Double \u003d 1.0\nanomalies: org.apache.spark.sql.DataFrame \u003d [id: int, label: string ... 2 more fields]\nNumber of anomalies in file: 20\nNumber of anomalies detected: 22\nNumber of actual anomalies detected: 9\n+---+------+--------------------+----------+\n| id| label|     scaled_features|prediction|\n+---+------+--------------------+----------+\n|  1|normal|[0.0,0.0,0.0,-0.6...|         8|\n| 14|normal|[0.0,0.0,0.0,-0.6...|         0|\n| 27|normal|[0.0,0.0,0.0,1.42...|        14|\n+---+------+--------------------+----------+\nonly showing top 3 rows\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "jobName": "paragraph_1536588021595_-2000462845",
+      "id": "20180910-140021_1631052909",
+      "dateCreated": "Sep 10, 2018 2:00:21 PM",
+      "dateStarted": "Sep 11, 2018 5:53:00 PM",
+      "dateFinished": "Sep 11, 2018 5:53:11 PM",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500
+    },
+    {
+      "user": "anonymous",
+      "dateUpdated": "Sep 11, 2018 5:52:49 PM",
+      "config": {
+        "colWidth": 12.0,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false
+        },
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "jobName": "paragraph_1536589257648_-343526644",
+      "id": "20180910-142057_2114346680",
+      "dateCreated": "Sep 10, 2018 2:20:57 PM",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500
+    }
+  ],
+  "name": "Intelligent WAF",
+  "id": "2DNY2YU3G",
+  "angularObjects": {
+    "2DS5RVF9U:shared_process": [],
+    "2DRT81JGU:shared_process": [],
+    "2DRB34CYN:shared_process": [],
+    "2DPG6TC3B:shared_process": [],
+    "2DQKTBYHZ:shared_process": [],
+    "2DRU6QDM3:shared_process": [],
+    "2DR3YHSSW:shared_process": [],
+    "2DP6R35PR:shared_process": [],
+    "2DQ4U6EQN:shared_process": [],
+    "2DQF4GX5N:shared_process": [],
+    "2DQK14MHH:shared_process": [],
+    "2DP6FE781:shared_process": [],
+    "2DQ92J8ZB:shared_process": [],
+    "2DRV692E2:shared_process": [],
+    "2DRB7AJGZ:shared_process": [],
+    "2DSGQ23FT:shared_process": [],
+    "2DQ2FCH17:shared_process": [],
+    "2DREGP5Z3:shared_process": [],
+    "2DQTEVV9K:shared_process": []
+  },
+  "config": {
+    "isZeppelinNotebookCronEnable": false
+  },
+  "info": {}
+}
