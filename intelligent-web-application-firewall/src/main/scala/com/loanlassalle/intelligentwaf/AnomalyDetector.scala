@@ -266,10 +266,12 @@ object AnomalyDetector extends Serializable {
         row.getAs[String]("label")
           .equals("anomaly"))
         .count
-      s"$threshold,${anomalies.count},$actualAnomalies"
+
+      s"$threshold,${anomalies.count},$actualAnomalies," +
+        f"${math.abs(actualAnomalies - anomalies.count).toDouble / anomalies.count * 100}%.2f"
     }
 
-    Seq(s"threshold,anomalies detected,actual anomalies") ++ results
+    Seq(s"threshold,anomalies detected,actual anomalies,error rate") ++ results
   }
 
   /**

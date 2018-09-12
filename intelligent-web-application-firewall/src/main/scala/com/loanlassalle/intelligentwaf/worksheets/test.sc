@@ -65,21 +65,25 @@ println
 /**
   * Tests the model
   */
+println("Intelligent WAF on test.csv")
+
 val threshold = 3.0
 val anomalies = AnomalyDetector.test(bestModel, threshold, testing)
 
-println("Intelligent WAF on test.csv")
-println(s"Number of anomalies in file: ${
-  testing.filter(row =>
-    row.getAs[String]("label")
-      .equals("anomaly"))
-    .count
-}")
+val totalAnomalies = testing.filter(row =>
+  row.getAs[String]("label")
+    .equals("anomaly"))
+  .count
+val actualAnomalies = anomalies.filter(row =>
+  row.getAs[String]("label")
+    .equals("anomaly"))
+  .count
+
+println(s"Number of anomalies in file: $totalAnomalies")
 println(s"Number of anomalies detected: ${anomalies.count}")
-println(s"Number of actual anomalies detected: ${
-  anomalies.filter(row =>
-    row.getAs[String]("label")
-      .equals("anomaly"))
-    .count
-}")
-anomalies.show()
+println(s"Number of actual anomalies detected: $actualAnomalies")
+println(f"Error rate of anomalies detected: ${
+  math.abs(actualAnomalies - anomalies.count).toDouble / anomalies.count * 100
+}%.2f%%")
+
+anomalies.show(3)
