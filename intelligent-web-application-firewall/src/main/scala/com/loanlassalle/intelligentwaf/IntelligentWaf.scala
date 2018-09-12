@@ -63,7 +63,21 @@ object IntelligentWaf {
       * Gets all distances to centroids for normal distribution
       */
     println("Distances to centroids")
-    AnomalyDetector.saveDistancesToCentroids(s"$resourcesPath/results_distances.csv", bestModel,
+    AnomalyDetector.saveDistancesToCentroids(s"$resourcesPath/results_distances.csv",
+      bestModel,
+      testing)
+    println
+
+    /**
+      * Gets prediction tests' results based on thresholds
+      */
+    println("Prediction tests' results based on thresholds")
+    val thresholds = for (decimal <- BigDecimal(0) to BigDecimal(10) by BigDecimal(0.1))
+      yield
+        decimal.doubleValue()
+    AnomalyDetector.saveTestsResults(s"$resourcesPath/results_tests.csv",
+      bestModel,
+      thresholds,
       testing)
     println
 

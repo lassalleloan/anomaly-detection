@@ -232,6 +232,63 @@ object AnomalyDetector extends Serializable {
   }
 
   /**
+    * Displays prediction tests' results based on thresholds to a CSV file
+    *
+    * @param model      KMeansModel of training
+    * @param thresholds sequence of thresholds sequence of prediction
+    * @param dataFrame  data to predict
+    */
+  def showTestsResults(model: KMeansModel,
+                       thresholds: Seq[Double],
+                       dataFrame: DataFrame,
+                       numRows: Int = 11): Unit = {
+    val data = if (numRows.equals(0))
+      testsResults(model, thresholds, dataFrame)
+    else
+      testsResults(model, thresholds, dataFrame).take(numRows)
+
+    println(data.mkString(System.lineSeparator))
+  }
+
+  /**
+    * Gets prediction tests' results based on thresholds to a CSV file
+    *
+    * @param model      KMeansModel of training
+    * @param thresholds sequence of thresholds sequence of prediction
+    * @param dataFrame  data to predict
+    */
+  private def testsResults(model: KMeansModel,
+                           thresholds: Seq[Double],
+                           dataFrame: DataFrame): Seq[String] = {
+    val results = for (threshold <- thresholds) yield {
+      val anomalies = AnomalyDetector.test(model, threshold, dataFrame)
+      val actualAnomalies = anomalies.filter(row =>
+        row.getAs[String]("label")
+          .equals("anomaly"))
+        .count
+      s"$threshold,${anomalies.count},$actualAnomalies"
+    }
+
+    Seq(s"threshold,anomalies detected,actual anomalies") ++ results
+  }
+
+  /**
+    * Saves prediction tests' results based on thresholds to a CSV file
+    *
+    * @param path       path of CSV file
+    * @param model      KMeansModel of training
+    * @param thresholds sequence of thresholds sequence of prediction
+    * @param dataFrame  data to predict
+    */
+  def saveTestsResults(path: String,
+                       model: KMeansModel,
+                       thresholds: Seq[Double],
+                       dataFrame: DataFrame): Unit = {
+    val data = testsResults(model, thresholds, dataFrame)
+    Utils.write(path, data.mkString(System.lineSeparator))
+  }
+
+  /**
     * Displays all distances to all centroids
     *
     * @param model     KMeansModel

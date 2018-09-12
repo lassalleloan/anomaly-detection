@@ -16,8 +16,10 @@ val resourcesPath = getClass.getResource("/csic_2010_http_dataset/partially").ge
   */
 val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining-20.txt",
   "normal")
-val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest-20.txt", "normal")
-val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest-20.txt", "anomaly")
+val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest-20.txt",
+  "normal")
+val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest-20.txt",
+  "anomaly")
 
 println(s"Basic statistics of all dataset")
 RawHttpRequest.basicStatistics(normalTraining ++ normalTest ++ anomalous)
@@ -30,16 +32,35 @@ val columnNames = RawHttpRequest.columnNames
 val training = AnomalyDetector.preProcessing(s"$resourcesPath/train-40.csv", columnNames: _*)
 val testing = AnomalyDetector.preProcessing(s"$resourcesPath/test-40.csv", columnNames: _*)
 
-val k = 18
-val maxIter = 20
-val tol = 1.0E-4
-val bestModel = new KMeans().setK(k).setMaxIter(maxIter).setTol(tol).setFeaturesCol ("scaled_features").fit(training)
+val k = 20
+val maxIter = 60
+val tol = 1.0E-6
+val bestModel = new KMeans()
+  .setK(k)
+  .setMaxIter(maxIter)
+  .setTol(tol)
+  .setFeaturesCol("scaled_features")
+  .fit(training)
 
 /**
   * Gets all distances to centroids for normal distribution
   */
-AnomalyDetector.saveDistancesToCentroids(s"$resourcesPath/results_distances-40.csv", bestModel,
+AnomalyDetector.saveDistancesToCentroids(s"$resourcesPath/results_distances-40.csv",
+  bestModel,
   testing)
+
+/**
+  * Gets prediction tests' results based on thresholds
+  */
+println("Prediction tests' results based on thresholds")
+val thresholds = for (decimal <- BigDecimal(0) to BigDecimal(10) by BigDecimal(0.1))
+  yield
+    decimal.doubleValue()
+AnomalyDetector.saveTestsResults(s"$resourcesPath/results_tests-40.csv",
+  bestModel,
+  thresholds,
+  testing)
+println
 
 /**
   * Tests the model
