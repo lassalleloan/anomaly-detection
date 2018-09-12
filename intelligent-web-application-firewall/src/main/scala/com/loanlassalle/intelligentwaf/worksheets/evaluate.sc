@@ -16,8 +16,10 @@ val resourcesPath = getClass.getResource("/csic_2010_http_dataset/partially").ge
   */
 val normalTraining = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTraining-20.txt",
   "normal")
-val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest-20.txt", "normal")
-val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest-20.txt", "anomaly")
+val normalTest = RawHttpRequest.parse(s"$resourcesPath/normalTrafficTest-20.txt",
+  "normal")
+val anomalous = RawHttpRequest.parse(s"$resourcesPath/anomalousTrafficTest-20.txt",
+  "anomaly")
 
 println(s"Basic statistics of all dataset")
 RawHttpRequest.basicStatistics(normalTraining ++ normalTest ++ anomalous)
