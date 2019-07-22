@@ -1,4 +1,4 @@
-# Anomaly Detection with Spark Machine Learning
+# Anomaly Detection :: Anomaly Detection with Spark Machine Learning
 
 Author: Loan Lassalle
 ***
